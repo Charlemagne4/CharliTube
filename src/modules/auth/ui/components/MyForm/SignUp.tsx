@@ -7,12 +7,17 @@ import { Form } from '@/components/ui/form';
 import MyForm from './MyForm';
 import { signUpFormSchema as formSchema } from './Schema';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 
 export function SignUp() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  if (session) {
+    redirect('/');
+  }
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
@@ -47,10 +52,21 @@ export function SignUp() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
   }
+  if (status === 'loading') {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-blue-500" />
+          <p className="text-sm text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-screen flex-col items-center justify-center">
+    <div className="">
       <h1>Sign Up</h1>
-      <div className="w-2/3 rounded p-20">
+      <div className="rounded">
         <Form {...form}>
           <div className="mb-4 flex gap-20">
             <Button onClick={() => signIn('github', { callbackUrl: '/' })}>
@@ -62,8 +78,6 @@ export function SignUp() {
           </div>
 
           <MyForm form={form} onSubmit={onSubmit} />
-
-          {/* <h6 className="bg-red-600 p-2 text-white">{error}</h6> */}
         </Form>
       </div>
     </div>

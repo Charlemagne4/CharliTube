@@ -8,13 +8,15 @@ import MyForm from './MyForm';
 import { signInFormSchema as formSchema } from './Schema';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn, signOut, useSession } from 'next-auth/react';
-import Image from 'next/image';
+import { redirect, useRouter, useSearchParams } from 'next/navigation';
+import { signIn, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 
 export function SignIn() {
   const { data: session, status } = useSession();
+  if (session) {
+    redirect('/');
+  }
   const [error, setError] = useState<string>();
   const router = useRouter();
 
@@ -59,16 +61,19 @@ export function SignIn() {
 
   if (status === 'loading') {
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
-        <p>Loading...</p>
+      <div className="flex h-screen w-full items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-blue-500" />
+          <p className="text-sm text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
 
   if (status === 'unauthenticated') {
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
-        <div className="w-2/3 rounded p-20">
+      <div className="">
+        <div className="rounded">
           <h1>Sign In</h1>
           <Form {...form}>
             <div className="mb-4 flex gap-20">
@@ -84,23 +89,10 @@ export function SignIn() {
           </Form>
           {error && <h6 className="bg-red-600 p-2 text-white">{error}</h6>}
         </div>
-
-        <span>let&apos;s say this is the rest of the page</span>
       </div>
     );
   }
   // console.log(session?.user?.role);
-  return (
-    <div className="flex h-screen flex-col items-center justify-center">
-      <p>Welcome, {session?.user?.name}</p>
-      {session?.user?.image && (
-        <Image src={session.user.image} alt="" height={400} width={400}></Image>
-      )}
-      <Button variant={'destructive'} onClick={() => signOut()}>
-        Sign out
-      </Button>
-    </div>
-  );
 }
 
 export default SignIn;

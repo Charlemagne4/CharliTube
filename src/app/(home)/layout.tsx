@@ -8,9 +8,6 @@ interface layoutProps {
 function Layout({ children }: layoutProps) {
   return (
     <div>
-      {/* layout Marker */}
-      <div className="h-1 bg-blue-600"></div>
-      {/* layout Marker */}
       <HomeLayout>{children}</HomeLayout>
     </div>
   );
