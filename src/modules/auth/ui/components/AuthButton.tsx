@@ -18,7 +18,7 @@ function AuthButton() {
       <Button
         onClick={() => router.push('/signin')}
         variant={'outline'}
-        className="py2 rounded-full border-blue-500/20 px-4 text-sm font-medium text-blue-600 shadow-none hover:text-blue-500 [&_svg]:size-5"
+        className="rounded-full border-blue-500/20 px-4 py-2 text-sm font-medium text-blue-600 shadow-none hover:text-blue-500 [&_svg]:size-5"
       >
         <UserCircleIcon />
         Sign In
@@ -27,6 +27,10 @@ function AuthButton() {
   }
 
   if (status === 'authenticated') {
+    console.log('user Role', data.user?.role);
+    console.log('user ID', data?.user.id);
+
+    console.log('user email', data?.user.email);
     return (
       //add menu items for studio and User Profile
       <Button
