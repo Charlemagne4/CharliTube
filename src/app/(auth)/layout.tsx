@@ -8,7 +8,7 @@ export default function AuthLayout({
   signinmodal: ReactNode;
 }) {
   return (
-    <div className="relative">
+    <div className="flex justify-center items-center min-h-screen">
       {children}
       {/* This ensures modals render outside normal flow */}
       <div className="pointer-events-none fixed inset-0">{signinmodal}</div>

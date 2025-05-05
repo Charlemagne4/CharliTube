@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/sidebar';
 import { HistoryIcon, ListVideoIcon, ThumbsUpIcon } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const items = [
   {
@@ -33,6 +34,7 @@ const items = [
 ];
 
 function PersonalSection() {
+  const router = useRouter();
   return (
     <SidebarGroup>
       <SidebarGroupLabel>You</SidebarGroupLabel>
@@ -44,7 +46,12 @@ function PersonalSection() {
                 tooltip={item.title}
                 asChild
                 isActive={false} // TODO: look at current pathname
-                onClick={() => console.log(item.title)} //TODO: do something on click
+                onClick={(e) => {
+                  if (status !== 'authenticated' && item.auth) {
+                    e.preventDefault();
+                    return router.push('/signin');
+                  }
+                }} //TODO: do something on click
               >
                 <Link href={item.url} className="flex items-center gap-4">
                   <item.icon />

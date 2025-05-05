@@ -5,7 +5,7 @@ import GitHubProvider from 'next-auth/providers/github';
 import DiscordProvider from 'next-auth/providers/discord';
 import { env } from '@/data/server';
 
-const authOptions = {
+export const authOptions = {
   providers: [
     GitHubProvider({
       clientId: env.GITHUB_CLIENT_ID,

@@ -28,9 +28,10 @@ function AuthButton() {
 
   if (status === 'authenticated') {
     return (
+      //add menu items for studio and User Profile
       <Button
         variant={'outline'}
-        onClick={() => signOut()}
+        onClick={() => signOut({ callbackUrl: '/' })}
         className="text-md flex gap-3 rounded-full border-none px-4 py-2 font-medium text-blue-800 shadow-none hover:text-blue-500"
       >
         <p>{data.user?.name}</p>

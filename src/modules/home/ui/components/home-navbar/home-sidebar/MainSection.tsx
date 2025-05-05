@@ -8,7 +8,9 @@ import {
   SidebarMenuItem
 } from '@/components/ui/sidebar';
 import { FlameIcon, HomeIcon, PlaySquareIcon } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const items = [
   {
@@ -30,6 +32,8 @@ const items = [
 ];
 
 function MainSection() {
+  const { status } = useSession();
+  const router = useRouter();
   return (
     <SidebarGroup>
       <SidebarGroupContent>
@@ -40,7 +44,12 @@ function MainSection() {
                 tooltip={item.title}
                 asChild
                 isActive={false} // TODO: look at current pathname
-                onClick={() => console.log(item.title)} //TODO: do something on click
+                onClick={(e) => {
+                  if (status !== 'authenticated' && item.auth) {
+                    e.preventDefault();
+                    return router.push('/signin');
+                  }
+                }} //TODO: do something on click
               >
                 <Link href={item.url} className="flex items-center gap-4">
                   <item.icon />

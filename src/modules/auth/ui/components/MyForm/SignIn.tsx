@@ -12,7 +12,15 @@ import { redirect, useRouter, useSearchParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 
+// interface Props {
+//   searchParams: Record<string, string | string[] | undefined>;
+// }
+
 export function SignIn() {
+  const searchParams = useSearchParams();
+
+  // Safely get callbackUrl from the query parameters
+
   const { data: session, status } = useSession();
   if (session) {
     redirect('/');
@@ -20,8 +28,8 @@ export function SignIn() {
   const [error, setError] = useState<string>();
   const router = useRouter();
 
-  const searchParams = useSearchParams();
-  const authError = searchParams.get('error');
+  const searchParamsInstance = useSearchParams();
+  const authError = searchParamsInstance.get('error');
 
   useEffect(() => {
     if (authError) {
@@ -71,16 +79,17 @@ export function SignIn() {
   }
 
   if (status === 'unauthenticated') {
+    const callbackUrl = decodeURIComponent(searchParams?.get('callbackUrl') ?? '/');
     return (
       <div className="">
         <div className="rounded">
           <h1>Sign In</h1>
           <Form {...form}>
             <div className="mb-4 flex gap-20">
-              <Button onClick={() => signIn('github', { callbackUrl: '/' })}>
+              <Button onClick={() => signIn('github', { callbackUrl: callbackUrl })}>
                 Sign in with GitHub
               </Button>
-              <Button onClick={() => signIn('discord', { callbackUrl: '/' })}>
+              <Button onClick={() => signIn('discord', { callbackUrl: callbackUrl })}>
                 Sign in with Discord
               </Button>
             </div>
