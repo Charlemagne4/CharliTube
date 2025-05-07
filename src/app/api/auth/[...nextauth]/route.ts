@@ -25,7 +25,7 @@ export const authOptions = {
     strategy: 'jwt' as const // Use JWT for session management
   },
   callbacks: {
-    async jwt({ token, user }: {token: JWT, user: User}) {
+    async jwt({ token, user }: { token: JWT; user: User }) {
       if (user) {
         token.role = user.role;
         token.id = user.id; // Add custom attribute
@@ -33,9 +33,9 @@ export const authOptions = {
       }
       return token;
     },
-    async session({ session, token }: {token: JWT, session: Session}) {
-      session.user.role = token.role;
-      session.user.id = token.id;
+    async session({ session, token }: { token: JWT; session: Session }) {
+      session.user.role = token.role as string;
+      session.user.id = token.id as string;
       return session;
     }
   }

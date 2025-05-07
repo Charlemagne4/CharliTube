@@ -3,13 +3,15 @@ import { z } from 'zod';
 
 export const env = createEnv({
   server: {
-    CLERK_SECRET_KEY: z.string(),
     DISCORD_CLIENT_ID: z.string().min(1),
     DISCORD_CLIENT_SECRET: z.string().min(1),
     GITHUB_CLIENT_ID: z.string().min(1),
     GITHUB_CLIENT_SECRET: z.string().min(1),
     OAUTH_REDIRECT_URL_BASE: z.string().url(),
-    AUTH_SECRET: z.string().min(1) //"npx auth secret" to create one
+    AUTH_SECRET: z.string().min(1), //"npx auth secret" to create one
+    NEXTAUTH_URL: z.string().min(1),
+    UPSTASH_REDIS_REST_URL: z.string().url(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().min(1)
   },
   client: {},
 
