@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 
 const secret = process.env.NEXTAUTH_SECRET;
 
-const protectedRoutes = ['/protected', '/dashboard', '/settings'];
+const protectedRoutes = ['/protected', '/studio', '/settings'];
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request, secret });
@@ -27,5 +27,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/protected/:path*']
+  matcher: [...protectedRoutes]
 };
