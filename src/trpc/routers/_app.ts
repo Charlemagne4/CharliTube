@@ -1,20 +1,10 @@
-import { z } from 'zod';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { baseProcedure, createTRPCRouter, protectedProcedure } from '../init';
 
+import { categoriesRouter } from '@/modules/categories/server/procedures';
+
 export const appRouter = createTRPCRouter({
-  hello: protectedProcedure
-    .input(
-      z.object({
-        text: z.string()
-      })
-    )
-    .query((opts) => {
-      console.log(opts.ctx.user);
-      return {
-        greeting: `${opts.input.text}`
-      };
-    })
+  categories: categoriesRouter
 });
 
 // export type definition of API
