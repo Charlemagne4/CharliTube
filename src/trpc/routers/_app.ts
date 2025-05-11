@@ -1,10 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { baseProcedure, createTRPCRouter, protectedProcedure } from '../init';
+import { studioRouter } from '@/modules/studio/server/procedures';
+import { createTRPCRouter } from '../init';
 
 import { categoriesRouter } from '@/modules/categories/server/procedures';
+import { videosRouter } from '@/modules/videos/server/procedures';
 
 export const appRouter = createTRPCRouter({
-  categories: categoriesRouter
+  studio: studioRouter,
+  categories: categoriesRouter,
+  videos: videosRouter
 });
 
 // export type definition of API
