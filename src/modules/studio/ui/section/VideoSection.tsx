@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/table';
 import { DEFAULT_LIMIT } from '@/constants';
 import { trpc } from '@/trpc/client';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -60,7 +59,7 @@ function VideoSectionSuspense() {
                   <TableCell>{video.title}</TableCell>
                   <TableCell>Visibility</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>Date</TableCell>
+                  <TableCell>{video.createdAt.toISOString()}</TableCell>
                   <TableCell className="text-right">Views</TableCell>
                   <TableCell className="text-right">Comments</TableCell>
                   <TableCell className="pr-6 text-right">Likes</TableCell>

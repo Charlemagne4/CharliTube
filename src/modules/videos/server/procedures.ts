@@ -1,18 +1,28 @@
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
 import { prisma } from '../../../../prisma/prisma';
+import { mux } from '@/lib/mux';
 
 export const videosRouter = createTRPCRouter({
   create: protectedProcedure.mutation(async ({ ctx }) => {
     const { id: userId } = ctx.user;
 
-    console.log('procedure create video');
+    const upload = await mux.video.uploads.create({
+      new_asset_settings: {
+        passthrough: userId,
+        playback_policies: ['public'],
+        static_renditions: [{ resolution: 'highest' }, { resolution: 'audio-only' }]
+      },
+      cors_origin: '*' //TODO: in production set to url
+    });
 
     const video = await prisma.video.create({
       data: {
         userId,
-        title: 'TOYOTA'
+        title: 'TOYOTA',
+        muxStatus: 'waiting',
+        muxUploadId: upload.id
       }
     });
-    return { video };
+    return { video, url: upload.url };
   })
 });
