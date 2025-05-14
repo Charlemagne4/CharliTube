@@ -14,8 +14,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 
-function AuthButton() {
-  //TODO: add different auth states
+import { Suspense } from 'react';
+
+export function AuthButton() {
+  return (
+    <Suspense fallback={<Button disabled>Loading...</Button>}>
+      <SessionContent />
+    </Suspense>
+  );
+}
+
+function SessionContent() {
   const { data, status } = useSession();
   const router = useRouter();
 

@@ -20,7 +20,9 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = new URL(`/signin`, origin);
     redirectUrl.searchParams.set('callbackUrl', callbackUrl);
 
-    return NextResponse.redirect(redirectUrl);
+    const redirectResponse = NextResponse.redirect(redirectUrl);
+    redirectResponse.headers.set('Cache-Control', 'no-store'); // ✅ also on redirect
+    return redirectResponse;
   }
 
   return NextResponse.next();
