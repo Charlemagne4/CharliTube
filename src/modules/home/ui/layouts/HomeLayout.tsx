@@ -11,7 +11,7 @@ export function HomeLayout({ children }: HomeLayoutProps) {
   return (
     <div>
       {/* START layout Marker */}
-      <div className="h-1 bg-blue-600"></div>
+      {/* <div className="h-1 bg-blue-600"></div> */}
       {/* END layout Marker */}
 
       <SidebarProvider>
