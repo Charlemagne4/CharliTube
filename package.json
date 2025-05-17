@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev:all": "concurrently \"npm run dev:webhook\" \"npm run dev\"",
     "dev": "next dev",
+    "dev:webhook": "ngrok http --url=master-patient-porpoise.ngrok-free.app 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -53,6 +55,7 @@
     "client-only": "^0.0.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "concurrently": "^9.1.2",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.507.0",

@@ -117,5 +117,5 @@ model Video {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([updatedAt, id])
+  // @@unique([updatedAt, id])
 }
