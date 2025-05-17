@@ -9,11 +9,14 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import VideoThumbnail from '@/modules/videos/ui/components/VideoThumbnail';
+import { snakeCaseToTitle } from '@/lib/utils';
 import { DEFAULT_LIMIT } from '@/constants';
 import { trpc } from '@/trpc/client';
 import { useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { format } from 'date-fns';
 
 function VideoSection() {
   return (
@@ -56,10 +59,29 @@ function VideoSectionSuspense() {
                   className="cursor-pointer hover:bg-gray-50"
                   onClick={() => router.push(`/studio/videos/${video.id}`)}
                 >
-                  <TableCell>{video.title}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-4">
+                      <div className="relative aspect-video w-36 shrink-0">
+                        <VideoThumbnail
+                          previewUrl={video.previewUrl}
+                          imageUrl={video.thumbnailUrl}
+                          title={video.title}
+                          duration={video.duration}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-y-1 overflow-hidden">
+                        <span className="line-clamp-1 text-sm">{video.title}</span>
+                        <span className="text-muted-foreground line-clamp-1 text-xs">
+                          {video.description || 'no description'}{' '}
+                        </span>
+                      </div>
+                    </div>
+                  </TableCell>
                   <TableCell>Visibility</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>{video.createdAt.toISOString()}</TableCell>
+                  <TableCell className="truncate text-sm">
+                    <div className="flex items-center">{snakeCaseToTitle(video.muxStatus)}</div>
+                  </TableCell>
+                  <TableCell>{format(new Date(video.createdAt), 'dd MMM yyyy')}</TableCell>
                   <TableCell className="text-right">Views</TableCell>
                   <TableCell className="text-right">Comments</TableCell>
                   <TableCell className="pr-6 text-right">Likes</TableCell>

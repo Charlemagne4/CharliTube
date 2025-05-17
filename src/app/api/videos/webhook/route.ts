@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       const data = payLoad.data as VideoAssetCreatedWebhookEvent['data'];
 
       if (!data.upload_id) {
-        return new Response('Upload ID not found', { status: 400 });
+        return new Response('(create) Upload ID not found', { status: 400 });
       }
 
       try {
@@ -65,11 +65,47 @@ export async function POST(request: Request) {
 
       break;
     }
+    case 'video.asset.ready': {
+      const data = payLoad.data as VideoAssetReadyWebhookEvent['data'];
+      const playbackId = data.playback_ids?.[0].id;
+
+      if (!data.upload_id) {
+        return new Response('(ready) Upload ID not found', { status: 400 });
+      }
+
+      if (!playbackId) {
+        return new Response('Playback Id not found', { status: 400 });
+      }
+
+      try {
+        const thumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`;
+        const previewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
+
+        const duration = data.duration ? Math.round(data.duration * 1000) : 0;
+
+        const updatedVideo = await prisma.video.update({
+          where: { muxUploadId: data.upload_id },
+          data: {
+            muxStatus: data.status,
+            muxPlaybackId: playbackId,
+            muxAssetId: data.id,
+            thumbnailUrl,
+            previewUrl,
+            duration
+          }
+        });
+
+        console.log('Video updated:', updatedVideo);
+      } catch (error) {
+        console.error('Failed to update video:', error);
+        return new Response('Video not found or database error', { status: 404 });
+      }
+      break;
+    }
 
     default:
       return new Response('Event type not handled', { status: 200 });
   }
-  
 
   return new Response('Webhook recieved', { status: 200 });
 }

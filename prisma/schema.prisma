@@ -107,12 +107,15 @@ model Video {
   muxStatus      String
   muxAssetId     String? //@unique TODO: need to make these unique fields unique somehow
   muxUploadId    String  @unique
-  muxPlayback    String? //@unique
+  muxPlaybackId  String? //@unique
   muxTrackId     String? //@unique
   muxTrackStatus String?
 
-  userId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  thumbnailUrl String?
+  previewUrl   String?
+  duration     Int?
+  userId       String  @db.ObjectId
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
