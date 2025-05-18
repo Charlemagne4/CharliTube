@@ -22,6 +22,7 @@ function VideoThumbnail({ imageUrl, previewUrl, title, duration }: VideoThumbnai
           src={previewUrl ?? '/placeholder.svg'}
           alt={title}
           fill
+          unoptimized={!!previewUrl}
           className="size-full object-cover opacity-0 group-hover:opacity-100"
         />
       </div>

@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { format } from 'date-fns';
+import { Globe2Icon, LockIcon } from 'lucide-react';
 
 function VideoSection() {
   return (
@@ -77,7 +78,16 @@ function VideoSectionSuspense() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>Visibility</TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      {video.visibility == 'private' ? (
+                        <LockIcon className="mr-2 size-4" />
+                      ) : (
+                        <Globe2Icon className="mr-2 size-4" />
+                      )}
+                      {snakeCaseToTitle(video.visibility || 'Visibility error')}
+                    </div>
+                  </TableCell>
                   <TableCell className="truncate text-sm">
                     <div className="flex items-center">{snakeCaseToTitle(video.muxStatus)}</div>
                   </TableCell>
