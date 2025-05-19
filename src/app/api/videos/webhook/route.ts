@@ -10,6 +10,10 @@ import {
 import { headers } from 'next/headers';
 import { prisma } from '../../../../../prisma/prisma';
 import { UTApi } from 'uploadthing/server';
+import { UploadFileResult } from 'uploadthing/types';
+import { z } from 'zod';
+import { VideoUpdateSchema } from '../../../../../prisma/zod-prisma';
+import { Video } from '../../../../../generated/prisma';
 const SIGNING_SECRET = env.MUX_WEBHOOK_SECRET!;
 
 type WebhookEvent =
@@ -95,34 +99,26 @@ export async function POST(request: Request) {
         });
 
         // Check if thumbnail and preview already exist
-        let thumbnailKey = existingVideo?.thumbnailKey ?? '';
-        let thumbnailUrl = existingVideo?.thumbnailUrl ?? '';
-        let previewKey = existingVideo?.previewKey ?? '';
-        let previewUrl = existingVideo?.previewUrl ?? '';
+        let thumbnailKey = existingVideo?.thumbnailKey;
+        let thumbnailUrl = existingVideo?.thumbnailUrl;
+        let previewKey = existingVideo?.previewKey;
+        let previewUrl = existingVideo?.previewUrl;
 
         // If any of them is missing, generate and upload
-        const imagesToUpload = [];
 
-        if (!previewUrl) {
+        const utApi = new UTApi();
+        if (!thumbnailUrl) {
           const tempThumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`;
-          imagesToUpload.push(tempThumbnailUrl);
+          const uploadedThumbnail = await utApi.uploadFilesFromUrl(tempThumbnailUrl);
+          thumbnailKey = uploadedThumbnail?.data?.key;
+          thumbnailUrl = uploadedThumbnail?.data?.ufsUrl;
         }
         if (!previewUrl) {
           const tempPreviewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
-          imagesToUpload.push(tempPreviewUrl);
+          const uploadedPreview = await utApi.uploadFilesFromUrl(tempPreviewUrl);
+          previewKey = uploadedPreview?.data?.key;
+          previewUrl = uploadedPreview?.data?.ufsUrl;
         }
-
-        const utApi = new UTApi();
-        const [uploadedThumbnail, uploadedPreview] = await utApi.uploadFilesFromUrl(imagesToUpload);
-
-        if (!uploadedThumbnail.data || !uploadedPreview.data) {
-          return new Response('Failed to upload thumbnail or preview', { status: 500 });
-        }
-
-        thumbnailKey = uploadedThumbnail.data.key;
-        thumbnailUrl = uploadedThumbnail.data.ufsUrl;
-        previewKey = uploadedPreview.data.key;
-        previewUrl = uploadedPreview.data.ufsUrl;
 
         const duration = data.duration ? Math.round(data.duration * 1000) : 0;
 
@@ -132,11 +128,11 @@ export async function POST(request: Request) {
             muxStatus: data.status,
             muxPlaybackId: playbackId,
             muxAssetId: data.id,
-            thumbnailUrl,
-            thumbnailKey,
-            previewUrl,
-            previewKey,
-            duration
+            duration,
+            ...(thumbnailKey && { thumbnailKey, thumbnailUrl }),
+            ...(previewKey && { previewKey, previewUrl })
+            // ...(thumbnailUrl && { thumbnailUrl }),
+            // ...(previewUrl && { previewUrl }),
           }
         });
 
