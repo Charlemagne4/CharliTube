@@ -10,10 +10,6 @@ import {
 import { headers } from 'next/headers';
 import { prisma } from '../../../../../prisma/prisma';
 import { UTApi } from 'uploadthing/server';
-import { UploadFileResult } from 'uploadthing/types';
-import { z } from 'zod';
-import { VideoUpdateSchema } from '../../../../../prisma/zod-prisma';
-import { Video } from '../../../../../generated/prisma';
 const SIGNING_SECRET = env.MUX_WEBHOOK_SECRET!;
 
 type WebhookEvent =
@@ -91,12 +87,17 @@ export async function POST(request: Request) {
         const existingVideo = await prisma.video.findUnique({
           where: { muxUploadId: data.upload_id },
           select: {
+            muxAssetId: true,
             thumbnailKey: true,
             previewKey: true,
             thumbnailUrl: true,
             previewUrl: true
           }
         });
+
+        if (existingVideo?.muxAssetId) {
+          return new Response('Video already processed', { status: 200 });
+        }
 
         // Check if thumbnail and preview already exist
         let thumbnailKey = existingVideo?.thumbnailKey;
@@ -121,6 +122,10 @@ export async function POST(request: Request) {
         }
 
         const duration = data.duration ? Math.round(data.duration * 1000) : 0;
+
+        if (!thumbnailKey || !previewKey) {
+          throw new Error('Failed to upload thumbnail');
+        }
 
         const updatedVideo = await prisma.video.update({
           where: { muxUploadId: data.upload_id },
