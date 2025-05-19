@@ -1,8 +1,23 @@
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
 import { prisma } from '../../../../prisma/prisma';
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 
 export const studioRouter = createTRPCRouter({
+  getOne: protectedProcedure.input(z.object({ id: z.string() })).query(async ({ ctx, input }) => {
+    const { id: userId } = ctx.user;
+    const { id } = input;
+
+    const video = await prisma.video.findFirst({ where: { id, userId } });
+
+    if (!video) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: "Video not found or you don't have access to it."
+      });
+    }
+    return video;
+  }),
   getMany: protectedProcedure
     .input(
       z.object({

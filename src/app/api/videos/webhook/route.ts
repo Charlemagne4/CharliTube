@@ -156,7 +156,7 @@ export async function POST(request: Request) {
         }
 
         const updatedResult = await prisma.video.updateMany({
-          data: { muxStatus: status, muxTrackId: trackId },
+          data: { muxTrackStatus: status, muxTrackId: trackId },
           where: { muxAssetId: assetId }
         });
 
