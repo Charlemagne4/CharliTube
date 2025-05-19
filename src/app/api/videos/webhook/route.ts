@@ -9,6 +9,7 @@ import {
 } from '@mux/mux-node/resources/webhooks';
 import { headers } from 'next/headers';
 import { prisma } from '../../../../../prisma/prisma';
+import { UTApi } from 'uploadthing/server';
 const SIGNING_SECRET = env.MUX_WEBHOOK_SECRET!;
 
 type WebhookEvent =
@@ -83,8 +84,45 @@ export async function POST(request: Request) {
       }
 
       try {
-        const thumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`;
-        const previewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
+        const existingVideo = await prisma.video.findUnique({
+          where: { muxUploadId: data.upload_id },
+          select: {
+            thumbnailKey: true,
+            previewKey: true,
+            thumbnailUrl: true,
+            previewUrl: true
+          }
+        });
+
+        // Check if thumbnail and preview already exist
+        let thumbnailKey = existingVideo?.thumbnailKey ?? '';
+        let thumbnailUrl = existingVideo?.thumbnailUrl ?? '';
+        let previewKey = existingVideo?.previewKey ?? '';
+        let previewUrl = existingVideo?.previewUrl ?? '';
+
+        // If any of them is missing, generate and upload
+        const imagesToUpload = [];
+
+        if (!previewUrl) {
+          const tempThumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`;
+          imagesToUpload.push(tempThumbnailUrl);
+        }
+        if (!previewUrl) {
+          const tempPreviewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
+          imagesToUpload.push(tempPreviewUrl);
+        }
+
+        const utApi = new UTApi();
+        const [uploadedThumbnail, uploadedPreview] = await utApi.uploadFilesFromUrl(imagesToUpload);
+
+        if (!uploadedThumbnail.data || !uploadedPreview.data) {
+          return new Response('Failed to upload thumbnail or preview', { status: 500 });
+        }
+
+        thumbnailKey = uploadedThumbnail.data.key;
+        thumbnailUrl = uploadedThumbnail.data.ufsUrl;
+        previewKey = uploadedPreview.data.key;
+        previewUrl = uploadedPreview.data.ufsUrl;
 
         const duration = data.duration ? Math.round(data.duration * 1000) : 0;
 
@@ -95,7 +133,9 @@ export async function POST(request: Request) {
             muxPlaybackId: playbackId,
             muxAssetId: data.id,
             thumbnailUrl,
+            thumbnailKey,
             previewUrl,
+            previewKey,
             duration
           }
         });
@@ -107,6 +147,7 @@ export async function POST(request: Request) {
       }
       break;
     }
+
     case 'video.asset.errored': {
       const data = payLoad.data as VideoAssetErroredWebhookEvent['data'];
 
@@ -136,6 +177,12 @@ export async function POST(request: Request) {
         const deletedVideo = await prisma.video.delete({
           where: { muxUploadId: data.upload_id }
         });
+
+        const utApi = new UTApi();
+        const cleanUpAfterDeletion = [];
+        if (deletedVideo.previewKey) cleanUpAfterDeletion.push(deletedVideo.previewKey);
+        if (deletedVideo.thumbnailKey) cleanUpAfterDeletion.push(deletedVideo.thumbnailKey);
+        void utApi.deleteFiles(cleanUpAfterDeletion);
 
         console.log('deleted Video:', deletedVideo);
       } catch (error) {

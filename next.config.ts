@@ -16,8 +16,9 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'image.mux.com'
+        hostname: 'n0oqdauikz.ufs.sh'
       }
+      // n0oqdauikz.ufs.sh
     ]
   }
 };

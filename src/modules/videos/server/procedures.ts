@@ -4,6 +4,8 @@ import { mux } from '@/lib/mux';
 import { VideoUpdateSchema } from '../../../../prisma/zod-prisma';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
+import { deleteUTFile } from '@/lib/UTapi';
+import { UTApi } from 'uploadthing/server';
 
 export const videosRouter = createTRPCRouter({
   create: protectedProcedure.mutation(async ({ ctx }) => {
@@ -65,6 +67,44 @@ export const videosRouter = createTRPCRouter({
       if (!removedVideo) {
         throw new TRPCError({ code: 'NOT_FOUND' });
       }
+
+      const utApi = new UTApi();
+      const cleanUpAfterDeletion = [];
+      if (removedVideo.previewKey) cleanUpAfterDeletion.push(removedVideo.previewKey);
+      if (removedVideo.thumbnailKey) cleanUpAfterDeletion.push(removedVideo.thumbnailKey);
+      void utApi.deleteFiles(cleanUpAfterDeletion);
+
       return removedVideo;
+    }),
+  restore: protectedProcedure
+    .input(z.object({ videoId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { id: userId } = ctx.user;
+      const { videoId } = input;
+
+      const existingVideo = await prisma.video.findFirst({ where: { userId, id: videoId } });
+
+      if (!existingVideo) throw new TRPCError({ code: 'NOT_FOUND' });
+      if (!existingVideo.muxPlaybackId) throw new TRPCError({ code: 'BAD_REQUEST' });
+
+      if (existingVideo.thumbnailKey) {
+        void deleteUTFile(input.videoId, userId, existingVideo);
+      }
+
+      const tempThumbnailUrl = `https://image.mux.com/${existingVideo.muxPlaybackId}/thumbnail.jpg`;
+
+      const utApi = new UTApi();
+      const [uploadedThumbnail] = await utApi.uploadFilesFromUrl([tempThumbnailUrl]);
+
+      if (!uploadedThumbnail.data) {
+        return new TRPCError({ code: 'SERVICE_UNAVAILABLE' });
+      }
+      const { key: thumbnailKey, ufsUrl: thumbnailUrl } = uploadedThumbnail.data;
+
+      const updatedVideo = await prisma.video.update({
+        where: { userId, id: videoId },
+        data: { thumbnailUrl, thumbnailKey }
+      });
+      return updatedVideo;
     })
 });

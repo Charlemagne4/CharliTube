@@ -5,6 +5,8 @@ import SessionProviderWrapper from '@/components/SessionProviderWrapper';
 import { TRPCProvider } from '@/trpc/client';
 import { Toaster } from '@/components/ui/sonner';
 
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export default function RootLayout({
         <TRPCProvider>
           <Toaster />
           <SessionProviderWrapper>{children}</SessionProviderWrapper>
+          <ReactQueryDevtools initialIsOpen={false} />
         </TRPCProvider>
       </body>
     </html>
