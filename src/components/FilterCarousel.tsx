@@ -39,6 +39,11 @@ function FilterCarousel({ data, isLoading, onSelect, value }: FilterCarouselProp
     api.on('select', () => {
       setCurrent(api.selectedScrollSnap() + 1);
     });
+    return () => {
+      api.off('select', () => {
+        setCurrent(api.selectedScrollSnap() + 1);
+      });
+    };
   }, [api]);
 
   return (

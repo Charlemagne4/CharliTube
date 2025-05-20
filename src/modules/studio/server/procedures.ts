@@ -38,9 +38,13 @@ export const studioRouter = createTRPCRouter({
         where: { userId },
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
         take: limit + 1,
-        ...(cursor && { cursor: { id: cursor.id, updatedAt: cursor.updatedAt } }),
+        ...(cursor
+          ? {
+              cursor: { updatedAt: cursor.updatedAt, id: cursor.id },
+              skip: 1
+            }
+          : {})
         //skip: 1 this made the data to come with one item missing might cause problems later... or not
-        skip: 0
       });
       const hasMore = data.length > limit;
       //remove last item if there is more data
