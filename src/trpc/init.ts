@@ -1,6 +1,6 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/auth';
 import { getServerSession } from 'next-auth';
 
 import superjson from 'superjson';
