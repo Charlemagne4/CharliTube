@@ -7,6 +7,11 @@ import { Toaster } from '@/components/ui/sonner';
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
+import { Suspense } from 'react';
+import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
+import { extractRouterConfig } from 'uploadthing/server';
+import { ourFileRouter } from './api/uploadthing/core';
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -22,6 +27,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        {/* experimental shenanigans */}
+        <Suspense fallback={<div>Loading...</div>}>
+          <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+        </Suspense>
         <TRPCProvider>
           <Toaster />
           <SessionProviderWrapper>{children}</SessionProviderWrapper>
