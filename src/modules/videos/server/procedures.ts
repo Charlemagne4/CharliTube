@@ -6,6 +6,8 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { deleteUTFile } from '@/lib/UTapi';
 import { UTApi } from 'uploadthing/server';
+import { workflowUpstashClient } from '@/lib/qstashWorkflow';
+import { env } from '@/data/server';
 
 export const videosRouter = createTRPCRouter({
   create: protectedProcedure.mutation(async ({ ctx }) => {
@@ -21,13 +23,13 @@ export const videosRouter = createTRPCRouter({
             generated_subtitles: [
               {
                 language_code: 'en',
-                name: 'English'
-              }
-            ]
-          }
-        ]
+                name: 'English',
+              },
+            ],
+          },
+        ],
       },
-      cors_origin: '*' //TODO: in production set to url
+      cors_origin: '*', //TODO: in production set to url
     });
 
     const video = await prisma.video.create({
@@ -35,8 +37,8 @@ export const videosRouter = createTRPCRouter({
         userId,
         title: 'TOYOTA',
         muxStatus: 'waiting',
-        muxUploadId: upload.id
-      }
+        muxUploadId: upload.id,
+      },
     });
     return { video, url: upload.url };
   }),
@@ -49,8 +51,8 @@ export const videosRouter = createTRPCRouter({
         title: input.title,
         description: input.description,
         categoryId: input.categoryId,
-        visibility: input.visibility || 'private'
-      }
+        visibility: input.visibility || 'private',
+      },
     });
     if (!updatedVideo) {
       throw new TRPCError({ code: 'NOT_FOUND' });
@@ -103,8 +105,53 @@ export const videosRouter = createTRPCRouter({
 
       const updatedVideo = await prisma.video.update({
         where: { userId, id: videoId },
-        data: { thumbnailUrl, thumbnailKey }
+        data: { thumbnailUrl, thumbnailKey },
       });
       return updatedVideo;
-    })
+    }),
+  generateTitle: protectedProcedure
+    .input(z.object({ videoId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { user } = ctx;
+      const { videoId } = input;
+      const { workflowRunId } = await workflowUpstashClient.trigger({
+        url: `${env.UPSTASH_WORKFLOW_URL}/api/videos/workflows/title`,
+        body: { userId: user.id, videoId },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('generateTitle hit');
+      return workflowRunId;
+    }),
+  generateDescriptionFromTitle: protectedProcedure
+    .input(z.object({ videoId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { user } = ctx;
+      const { videoId } = input;
+      const { workflowRunId } = await workflowUpstashClient.trigger({
+        url: `${env.UPSTASH_WORKFLOW_URL}/api/videos/workflows/description`,
+        body: { userId: user.id, videoId },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('generateDescription hit');
+      return workflowRunId;
+    }),
+  generateDescriptionFromTranscriptionTrack: protectedProcedure
+    .input(z.object({ videoId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { user } = ctx;
+      const { videoId } = input;
+      const { workflowRunId } = await workflowUpstashClient.trigger({
+        url: `${env.UPSTASH_WORKFLOW_URL}/api/videos/workflows/transcription`,
+        body: { userId: user.id, videoId },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('generateDescription hit');
+      return workflowRunId;
+    }),
 });

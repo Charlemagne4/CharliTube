@@ -11,7 +11,7 @@ import {
   MoreVerticalIcon,
   RotateCcwIcon,
   SparklesIcon,
-  TrashIcon
+  TrashIcon,
 } from 'lucide-react';
 
 import { Suspense, useState } from 'react';
@@ -21,7 +21,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 
@@ -35,14 +35,14 @@ import {
   FormField,
   FormLabel,
   FormMessage,
-  FormItem
+  FormItem,
 } from '@/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from '@/components/ui/select';
 import { z } from 'zod';
 import { VideoUpdateSchema } from '../../../../../prisma/zod-prisma';
@@ -94,7 +94,7 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
     },
     onError: (error) => {
       toast.error(error.message);
-    }
+    },
   });
 
   const remove = trpc.videos.remove.useMutation({
@@ -105,7 +105,36 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
     },
     onError: (error) => {
       toast.error(error.message);
-    }
+    },
+  });
+
+  const generateTitle = trpc.videos.generateTitle.useMutation({
+    onSuccess: () => {
+      toast.success('Title generation processing...', { description: 'This may take some time' });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+  const generateDescriptionFromTranscriptionTrack =
+    trpc.videos.generateDescriptionFromTranscriptionTrack.useMutation({
+      onSuccess: () => {
+        toast.success('Title generation processing...', { description: 'This may take some time' });
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+
+  const generateDescriptionFromTitle = trpc.videos.generateDescriptionFromTitle.useMutation({
+    onSuccess: () => {
+      toast.success('Description generation processing...', {
+        description: 'This may take some time',
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
 
   const restoreThumbnail = trpc.videos.restore.useMutation({
@@ -117,12 +146,12 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
     },
     onError: (error) => {
       toast.error(error.message);
-    }
+    },
   });
 
   const form = useForm<z.infer<typeof VideoUpdateSchema>>({
     defaultValues: video,
-    resolver: zodResolver(VideoUpdateSchema)
+    resolver: zodResolver(VideoUpdateSchema),
   });
 
   const onSubmit = async (data: z.infer<typeof VideoUpdateSchema>) => {
@@ -179,9 +208,16 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
+                  <FormItem
+                    onClick={() => {
+                      generateTitle.mutate({ videoId });
+                    }}
+                  >
+                    <FormLabel className="flex">
                       Title
+                      <Button type="button" variant={'ghost'}>
+                        <SparklesIcon className="size-3.5" />
+                      </Button>
                       {/* TODO: add ai generate button */}
                     </FormLabel>
                     <FormControl>
@@ -195,9 +231,16 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
+                  <FormItem
+                    onClick={() => {
+                      generateDescriptionFromTitle.mutate({ videoId });
+                    }}
+                  >
+                    <FormLabel className="flex">
                       Description
+                      <Button type="button" variant={'ghost'}>
+                        <SparklesIcon className="size-3.5" />
+                      </Button>
                       {/* TODO: add ai generate button */}
                     </FormLabel>
                     <FormControl>
@@ -243,7 +286,11 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                               <ImagePlusIcon className="mr-1 size-4" />
                               Change
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                generateDescriptionFromTranscriptionTrack.mutate({ videoId });
+                              }}
+                            >
                               <SparklesIcon className="mr-1 size-4" />
                               AI-generated
                             </DropdownMenuItem>
@@ -325,7 +372,21 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-y-1">
-                      <p className="text-muted-foreground text-xs">Track status</p>
+                      <p className="text-muted-foreground text-xs">
+                        Track status
+                        {video.muxTrackStatus && (
+                          <Button
+                            type="button"
+                            variant={'ghost'}
+                            onClick={() => {
+                              generateDescriptionFromTranscriptionTrack.mutate({ videoId });
+                            }}
+                          >
+                            <SparklesIcon className="size-3.5" />
+                          </Button>
+                        )}
+                      </p>
+
                       <p className="text-sm">
                         {snakeCaseToTitle(video.muxTrackStatus || 'No Subtitles')}
                       </p>

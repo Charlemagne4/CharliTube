@@ -3,7 +3,7 @@ import { prisma } from '../../prisma/prisma';
 export async function deleteUTFile(
   videoId: string,
   userId: string,
-  existingVideo: { thumbnailKey: string | null }
+  existingVideo: { thumbnailKey: string | null },
 ) {
   const utApi = new UTApi();
 
@@ -15,7 +15,7 @@ export async function deleteUTFile(
     void prisma.video
       .update({
         where: { id: videoId, userId },
-        data: { thumbnailKey: null }
+        data: { thumbnailKey: null },
       })
       .catch((err) => {
         console.error('Failed to update DB after UT deletion:', err);

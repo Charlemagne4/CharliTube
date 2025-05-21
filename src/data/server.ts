@@ -15,10 +15,17 @@ export const env = createEnv({
     MUX_TOKEN_ID: z.string(),
     MUX_TOKEN_SECRET: z.string(),
     MUX_WEBHOOK_SECRET: z.string(),
-    UPLOADTHING_TOKEN: z.string()
+    UPLOADTHING_TOKEN: z.string(),
+    QSTASH_URL: z.string().url(),
+    QSTASH_TOKEN: z.string(),
+    QSTASH_CURRENT_SIGNING_KEY: z.string(),
+    QSTASH_NEXT_SIGNING_KEY: z.string(),
+    UPSTASH_WORKFLOW_URL: z.string().url(),
+    CO_API_KEY: z.string(),
+    DEEPSEEK_API_KEY: z.string(),
   },
   client: {},
 
   // For Next.js >= 13.4.4, you only need to destructure client variables:
-  experimental__runtimeEnv: {}
+  experimental__runtimeEnv: {},
 });

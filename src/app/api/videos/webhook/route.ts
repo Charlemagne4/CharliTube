@@ -5,7 +5,7 @@ import {
   VideoAssetErroredWebhookEvent,
   VideoAssetReadyWebhookEvent,
   VideoAssetTrackReadyWebhookEvent,
-  VideoAssetDeletedWebhookEvent
+  VideoAssetDeletedWebhookEvent,
 } from '@mux/mux-node/resources/webhooks';
 import { headers } from 'next/headers';
 import { prisma } from '../../../../../prisma/prisma';
@@ -33,14 +33,15 @@ export async function POST(request: Request) {
   }
 
   const payLoad = await request.json();
+  console.log('WEBHOOK HIT BY: ', payLoad.type as WebhookEvent['type']);
   const body = JSON.stringify(payLoad);
 
   mux.webhooks.verifySignature(
     body,
     {
-      'mux-signature': muxSignature
+      'mux-signature': muxSignature,
     },
-    SIGNING_SECRET
+    SIGNING_SECRET,
   );
 
   switch (payLoad.type as WebhookEvent['type']) {
@@ -57,11 +58,11 @@ export async function POST(request: Request) {
           where: { muxUploadId: data.upload_id },
           data: {
             muxStatus: data.status,
-            muxAssetId: data.id
-          }
+            muxAssetId: data.id,
+          },
         });
 
-        console.log('Video updated:', updatedVideo);
+        console.log('Video updated:', updatedVideo.id);
       } catch (error) {
         console.error('Failed to update video:', error);
         return new Response('Video not found or database error', { status: 404 });
@@ -71,31 +72,29 @@ export async function POST(request: Request) {
     }
     case 'video.asset.ready': {
       const data = payLoad.data as VideoAssetReadyWebhookEvent['data'];
-      console.log('readying Video');
 
       const playbackId = data.playback_ids?.[0].id;
-
       if (!data.upload_id) {
         return new Response('(ready) Upload ID not found', { status: 400 });
       }
-
       if (!playbackId) {
         return new Response('Playback Id not found', { status: 400 });
       }
-
       try {
         const existingVideo = await prisma.video.findUnique({
           where: { muxUploadId: data.upload_id },
           select: {
+            muxPlaybackId: true,
             muxAssetId: true,
             thumbnailKey: true,
             previewKey: true,
             thumbnailUrl: true,
-            previewUrl: true
-          }
+            previewUrl: true,
+          },
         });
-
-        if (existingVideo?.muxAssetId) {
+        console.warn('THIS MUST BE UNDEFINED or NULL', existingVideo?.muxPlaybackId);
+        //this is some next level BS from AI careful next time
+        if (existingVideo?.muxPlaybackId) {
           return new Response('Video already processed', { status: 200 });
         }
 
@@ -104,7 +103,6 @@ export async function POST(request: Request) {
         let thumbnailUrl = existingVideo?.thumbnailUrl;
         let previewKey = existingVideo?.previewKey;
         let previewUrl = existingVideo?.previewUrl;
-
         // If any of them is missing, generate and upload
 
         const utApi = new UTApi();
@@ -113,12 +111,14 @@ export async function POST(request: Request) {
           const uploadedThumbnail = await utApi.uploadFilesFromUrl(tempThumbnailUrl);
           thumbnailKey = uploadedThumbnail?.data?.key;
           thumbnailUrl = uploadedThumbnail?.data?.ufsUrl;
+          console.log('readying Video', tempThumbnailUrl);
         }
         if (!previewUrl) {
           const tempPreviewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
           const uploadedPreview = await utApi.uploadFilesFromUrl(tempPreviewUrl);
           previewKey = uploadedPreview?.data?.key;
           previewUrl = uploadedPreview?.data?.ufsUrl;
+          console.log('readying Video', previewUrl);
         }
 
         const duration = data.duration ? Math.round(data.duration * 1000) : 0;
@@ -135,13 +135,14 @@ export async function POST(request: Request) {
             muxAssetId: data.id,
             duration,
             ...(thumbnailKey && { thumbnailKey, thumbnailUrl }),
-            ...(previewKey && { previewKey, previewUrl })
+            ...(previewKey && { previewKey, previewUrl }),
             // ...(thumbnailUrl && { thumbnailUrl }),
             // ...(previewUrl && { previewUrl }),
-          }
+          },
         });
 
-        console.log('Video updated:', updatedVideo);
+        console.log('Video updated:', updatedVideo.id);
+        return new Response('Video updated', { status: 200 });
       } catch (error) {
         console.error('Failed to update video:', error);
         return new Response('Video not found or database error', { status: 404 });
@@ -158,10 +159,11 @@ export async function POST(request: Request) {
       try {
         const updatedVideo = await prisma.video.update({
           data: { muxStatus: data.status },
-          where: { muxUploadId: data.upload_id }
+          where: { muxUploadId: data.upload_id },
         });
 
-        console.log('Video Error:', updatedVideo);
+        console.log('Video Error:', updatedVideo.id);
+        return new Response('error handled', { status: 200 });
       } catch (error) {
         console.error('Failed to update error in video:', error);
         return new Response('database error', { status: 404 });
@@ -176,7 +178,7 @@ export async function POST(request: Request) {
       }
       try {
         const deletedVideo = await prisma.video.delete({
-          where: { muxUploadId: data.upload_id }
+          where: { muxUploadId: data.upload_id },
         });
 
         const utApi = new UTApi();
@@ -185,7 +187,8 @@ export async function POST(request: Request) {
         if (deletedVideo.thumbnailKey) cleanUpAfterDeletion.push(deletedVideo.thumbnailKey);
         void utApi.deleteFiles(cleanUpAfterDeletion);
 
-        console.log('deleted Video:', deletedVideo);
+        console.log('deleted Video:', deletedVideo.id);
+        return new Response('Asset deleted', { status: 200 });
       } catch (error) {
         console.error('Failed to delete video:', error);
         return new Response('Video not found or database error', { status: 404 });
@@ -205,7 +208,7 @@ export async function POST(request: Request) {
 
         const updatedResult = await prisma.video.updateMany({
           data: { muxTrackStatus: status, muxTrackId: trackId },
-          where: { muxAssetId: assetId }
+          where: { muxAssetId: assetId },
         });
 
         if (updatedResult.count === 0) {
@@ -216,6 +219,7 @@ export async function POST(request: Request) {
           throw new Error('Mux Duplicated assetId detected');
         }
         console.log('Video track Ready');
+        return new Response('track status handled', { status: 200 });
       } catch (error) {
         console.error('Failed to update video:', error);
         return new Response('Video not found or database error', { status: 404 });
