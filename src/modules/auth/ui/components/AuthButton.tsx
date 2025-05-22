@@ -27,7 +27,7 @@ function SessionContent() {
   const { data, status } = useSession();
 
   if (status === 'loading') return <div>loading...</div>;
-
+  //TODO: make the signin button redirect to initial Page
   if (status === 'unauthenticated') {
     return (
       <Link href={'/signin'}>

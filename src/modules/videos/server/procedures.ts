@@ -1,4 +1,4 @@
-import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
+import { createTRPCRouter, protectedProcedure, baseProcedure } from '@/trpc/init';
 import { prisma } from '../../../../prisma/prisma';
 import { mux } from '@/lib/mux';
 import { VideoUpdateSchema } from '../../../../prisma/zod-prisma';
@@ -10,6 +10,15 @@ import { workflowUpstashClient } from '@/lib/qstashWorkflow';
 import { env } from '@/data/server';
 
 export const videosRouter = createTRPCRouter({
+  getOne: baseProcedure.input(z.object({ videoId: z.string() })).query(async ({ input }) => {
+    const existingVideo = await prisma.video.findFirst({
+      where: { id: input.videoId },
+      include: { user: true },
+    });
+
+    if (!existingVideo) throw new TRPCError({ code: 'NOT_FOUND' });
+    return existingVideo;
+  }),
   create: protectedProcedure.mutation(async ({ ctx }) => {
     const { id: userId } = ctx.user;
 
