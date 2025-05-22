@@ -7,6 +7,7 @@ import {
   CopyIcon,
   Globe2Icon,
   ImagePlusIcon,
+  Loader2Icon,
   LockIcon,
   MoreVerticalIcon,
   RotateCcwIcon,
@@ -55,6 +56,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { THUMBNAIL_FALLBACK } from '@/constants';
 import ThumbnailUploadModal from '../components/ThumbnailUploadModal';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 interface FormSectionProps {
   videoId: string;
@@ -208,17 +211,36 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                 control={form.control}
                 name="title"
                 render={({ field }) => (
-                  <FormItem
-                    onClick={() => {
-                      generateTitle.mutate({ videoId });
-                    }}
-                  >
-                    <FormLabel className="flex">
-                      Title
-                      <Button type="button" variant={'ghost'}>
-                        <SparklesIcon className="size-3.5" />
-                      </Button>
-                      {/* TODO: add ai generate button */}
+                  <FormItem>
+                    <FormLabel>
+                      <div className="flex items-center gap-x-2">
+                        Title
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                size={'icon'}
+                                variant={'outline'}
+                                className="size-6 cursor-pointer rounded-full border-none [&_svg]:size-3"
+                                onClick={() => {
+                                  generateTitle.mutate({ videoId });
+                                }}
+                                disabled={generateTitle.isPending}
+                              >
+                                {generateTitle.isPending ? (
+                                  <Loader2Icon className="animate-spin" />
+                                ) : (
+                                  <SparklesIcon />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Generate Title From Description</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="Add a title to you video" />
@@ -231,17 +253,36 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <FormItem
-                    onClick={() => {
-                      generateDescriptionFromTitle.mutate({ videoId });
-                    }}
-                  >
-                    <FormLabel className="flex">
-                      Description
-                      <Button type="button" variant={'ghost'}>
-                        <SparklesIcon className="size-3.5" />
-                      </Button>
-                      {/* TODO: add ai generate button */}
+                  <FormItem>
+                    <FormLabel>
+                      <div className="flex items-center gap-x-2">
+                        Description
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                size={'icon'}
+                                variant={'outline'}
+                                className="size-6 cursor-pointer rounded-full border-none [&_svg]:size-3"
+                                onClick={() => {
+                                  generateDescriptionFromTitle.mutate({ videoId });
+                                }}
+                                disabled={generateDescriptionFromTitle.isPending}
+                              >
+                                {generateDescriptionFromTitle.isPending ? (
+                                  <Loader2Icon className="animate-spin" />
+                                ) : (
+                                  <SparklesIcon />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Generate Description From Title</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -286,13 +327,9 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                               <ImagePlusIcon className="mr-1 size-4" />
                               Change
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                generateDescriptionFromTranscriptionTrack.mutate({ videoId });
-                              }}
-                            >
+                            <DropdownMenuItem disabled>
                               <SparklesIcon className="mr-1 size-4" />
-                              AI-generated
+                              AI-generated (cannot afford it)
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => {
@@ -372,20 +409,36 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col gap-y-1">
-                      <p className="text-muted-foreground text-xs">
-                        Track status
+                      <div className="flex items-center gap-x-2">
+                        <p className="text-muted-foreground text-xs">Track status</p>
                         {video.muxTrackStatus && (
-                          <Button
-                            type="button"
-                            variant={'ghost'}
-                            onClick={() => {
-                              generateDescriptionFromTranscriptionTrack.mutate({ videoId });
-                            }}
-                          >
-                            <SparklesIcon className="size-3.5" />
-                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  type="button"
+                                  size={'icon'}
+                                  variant={'outline'}
+                                  className="size-6 cursor-pointer rounded-full border-none [&_svg]:size-3"
+                                  onClick={() => {
+                                    generateDescriptionFromTranscriptionTrack.mutate({ videoId });
+                                  }}
+                                  disabled={generateDescriptionFromTranscriptionTrack.isPending}
+                                >
+                                  {generateDescriptionFromTranscriptionTrack.isPending ? (
+                                    <Loader2Icon className="animate-spin" />
+                                  ) : (
+                                    <SparklesIcon />
+                                  )}
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Generate Description From Subtitles</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
-                      </p>
+                      </div>
 
                       <p className="text-sm">
                         {snakeCaseToTitle(video.muxTrackStatus || 'No Subtitles')}
