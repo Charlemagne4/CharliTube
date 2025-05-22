@@ -4,13 +4,12 @@ import { Button } from '@/components/ui/button';
 import { ClapperboardIcon, LogOutIcon, UserCircleIcon, UserIcon } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 
@@ -26,20 +25,20 @@ export function AuthButton() {
 
 function SessionContent() {
   const { data, status } = useSession();
-  const router = useRouter();
 
   if (status === 'loading') return <div>loading...</div>;
 
   if (status === 'unauthenticated') {
     return (
-      <Button
-        onClick={() => router.push('/signin')}
-        variant={'outline'}
-        className="rounded-full border-blue-500/20 px-4 py-2 text-sm font-medium text-blue-600 shadow-none hover:text-blue-500 [&_svg]:size-5"
-      >
-        <UserCircleIcon />
-        Sign In
-      </Button>
+      <Link href={'/signin'}>
+        <Button
+          variant={'outline'}
+          className="rounded-full border-blue-500/20 px-4 py-2 text-sm font-medium text-blue-600 shadow-none hover:text-blue-500 [&_svg]:size-5"
+        >
+          <UserCircleIcon />
+          Sign In
+        </Button>
+      </Link>
     );
   }
 
