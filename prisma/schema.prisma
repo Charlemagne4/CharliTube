@@ -29,7 +29,8 @@ model User {
   role Role @default(user)
 
   //Video Content 
-  Videos Video[]
+  Videos        Video[]
+  VideoReaction VideoReaction[]
 }
 
 enum Role {
@@ -127,7 +128,8 @@ model Video {
   updatedAt DateTime @updatedAt
 
   // @@unique([updatedAt, id])
-  VideoViews VideoView[]
+  VideoViews    VideoView[]
+  VideoReaction VideoReaction[]
 }
 
 enum Visibility {
@@ -144,4 +146,22 @@ model VideoView {
   viewedAt DateTime @default(now())
 
   @@unique([userId, anonId, videoId])
+}
+
+model VideoReaction {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String       @db.ObjectId
+  videoId      String       @db.ObjectId
+  reactionType reactionType
+
+  video        Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id])
+  interactedAt DateTime @default(now())
+
+  @@unique([userId, videoId])
+}
+
+enum reactionType {
+  like
+  dislike
 }

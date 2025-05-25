@@ -10,14 +10,20 @@ import { workflowUpstashClient } from '@/lib/qstashWorkflow';
 import { env } from '@/data/server';
 
 export const videosRouter = createTRPCRouter({
-  getOne: baseProcedure.input(z.object({ videoId: z.string() })).query(async ({ input }) => {
+  getOne: baseProcedure.input(z.object({ videoId: z.string() })).query(async ({ input, ctx }) => {
     const existingVideo = await prisma.video.findFirst({
       where: { id: input.videoId },
-      include: { user: true, _count: { select: { VideoViews: true } } },
+      include: { user: true, VideoReaction: true, _count: { select: { VideoViews: true } } },
     });
 
     if (!existingVideo) throw new TRPCError({ code: 'NOT_FOUND' });
-    return existingVideo;
+
+    const likesCount = existingVideo.VideoReaction.filter((r) => r.reactionType === 'like').length;
+    const dislikesCount = existingVideo.VideoReaction.filter(
+      (r) => r.reactionType === 'dislike',
+    ).length;
+
+    return { ...existingVideo, dislikesCount, likesCount };
   }),
   create: protectedProcedure.mutation(async ({ ctx }) => {
     const { id: userId } = ctx.user;

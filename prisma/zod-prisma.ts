@@ -18,7 +18,7 @@ export const VideoUpdateSchema = z.object({
   thumbnailUrl: z.string().url().nullable().optional(),
   previewUrl: z.string().url().nullable().optional(),
 
-  duration: z.number().int().nonnegative().nullable().optional() // ← just in case
+  duration: z.number().int().nonnegative().nullable().optional(), // ← just in case
 });
 
 export const VideoCreateSchema = z.object({
@@ -43,7 +43,7 @@ export const VideoCreateSchema = z.object({
 
   duration: z.number().int().nonnegative().optional(),
 
-  userId: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid user ID')
+  userId: z.string().regex(/^[a-f\d]{24}$/i, 'Invalid user ID'),
 });
 
 export const VideoSelectSchema = z.object({
@@ -69,5 +69,47 @@ export const VideoSelectSchema = z.object({
   user: z.boolean().optional(), // or use a nested schema if needed
 
   createdAt: z.boolean().optional(),
-  updatedAt: z.boolean().optional()
+  updatedAt: z.boolean().optional(),
+});
+
+export const videoViewCreateSchema = z.object({
+  videoId: z.string().length(24, 'Invalid ObjectId'),
+  userId: z.string().length(24, 'Invalid ObjectId').optional().nullable(),
+  anonId: z.string().optional().nullable(),
+});
+
+export const videoViewUpdateSchema = z.object({
+  videoId: z.string().length(24, 'Invalid ObjectId').optional(),
+  userId: z.string().length(24, 'Invalid ObjectId').optional().nullable(),
+  anonId: z.string().optional().nullable(),
+  viewedAt: z.date().optional(),
+});
+
+export const videViewSelectSchema = z.object({
+  id: z.string(),
+  videoId: z.string(),
+  userId: z.string().nullable(),
+  anonId: z.string().nullable(),
+  viewedAt: z.date(),
+});
+
+const ReactionTypeSchema = z.enum(['like', 'dislike']);
+
+export const VideoReactionSelectSchema = z.object({
+  userId: z.string().optional(),
+  videoId: z
+    .string()
+    .regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId format')
+    .optional(),
+  reactionType: ReactionTypeSchema.optional(),
+});
+
+export const CreateVideoReactionSchema = z.object({
+  userId: z.string().min(1, 'User ID is required'),
+  videoId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid ObjectId format'),
+  reactionType: ReactionTypeSchema,
+});
+
+export const UpdateVideoReactionSchema = z.object({
+  reactionType: ReactionTypeSchema,
 });
