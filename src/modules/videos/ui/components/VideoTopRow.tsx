@@ -1,10 +1,11 @@
 import { ErrorBoundary } from 'react-error-boundary';
 import { VideoGetOneOutput } from '../../types';
 import VideoOwner from './VideoOwner';
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
 import VideoReactions from './VideoReactions';
 import VideoMenu from './VideoMenu';
 import VideoDescription from './VideoDescription';
+import { formatDistanceToNow, format } from 'date-fns';
 
 interface VideoTopRowProps {
   video: VideoGetOneOutput;
@@ -22,6 +23,21 @@ function VideoTopRow({ video }: VideoTopRowProps) {
 export default VideoTopRow;
 
 function VideoTopRowSuspense({ video }: VideoTopRowProps) {
+  const compactViews = useMemo(() => {
+    return Intl.NumberFormat('en', { notation: 'compact' }).format(1002353);
+  }, []);
+  const expandedViews = useMemo(() => {
+    return Intl.NumberFormat('en', { notation: 'standard' }).format(1002353);
+  }, []);
+
+  const compactDate = useMemo(() => {
+    return formatDistanceToNow(video.createdAt, { addSuffix: true });
+  }, [video.createdAt]);
+
+  const expandedDate = useMemo(() => {
+    return format(video.createdAt, 'd MM yyyy');
+  }, [video.createdAt]);
+
   return (
     <div className="mt-4 flex flex-col gap-4">
       <h1 className="text-xl font-semibold">{video.title}</h1>
@@ -34,10 +50,10 @@ function VideoTopRowSuspense({ video }: VideoTopRowProps) {
       </div>
       <VideoDescription
         description={video.description}
-        compactViews={'1m'}
-        expandedViews={'1 002 353'}
-        compactDate={'13/03/2009'}
-        expandedDate={'13th March 2009'}
+        compactViews={compactViews}
+        expandedViews={expandedViews}
+        compactDate={compactDate}
+        expandedDate={expandedDate}
       />
     </div>
   );
