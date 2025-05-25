@@ -24,11 +24,11 @@ export default VideoTopRow;
 
 function VideoTopRowSuspense({ video }: VideoTopRowProps) {
   const compactViews = useMemo(() => {
-    return Intl.NumberFormat('en', { notation: 'compact' }).format(1002353);
-  }, []);
+    return Intl.NumberFormat('en', { notation: 'compact' }).format(video._count.VideoViews);
+  }, [video._count.VideoViews]);
   const expandedViews = useMemo(() => {
-    return Intl.NumberFormat('en', { notation: 'standard' }).format(1002353);
-  }, []);
+    return Intl.NumberFormat('en', { notation: 'standard' }).format(video._count.VideoViews);
+  }, [video._count.VideoViews]);
 
   const compactDate = useMemo(() => {
     return formatDistanceToNow(video.createdAt, { addSuffix: true });

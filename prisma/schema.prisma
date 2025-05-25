@@ -127,9 +127,21 @@ model Video {
   updatedAt DateTime @updatedAt
 
   // @@unique([updatedAt, id])
+  VideoViews VideoView[]
 }
 
 enum Visibility {
   public
   private
+}
+
+model VideoView {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  videoId  String   @db.ObjectId
+  video    Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  userId   String? // Nullable
+  anonId   String? // Nullable
+  viewedAt DateTime @default(now())
+
+  @@unique([userId, anonId, videoId])
 }

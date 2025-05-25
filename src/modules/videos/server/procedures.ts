@@ -13,7 +13,7 @@ export const videosRouter = createTRPCRouter({
   getOne: baseProcedure.input(z.object({ videoId: z.string() })).query(async ({ input }) => {
     const existingVideo = await prisma.video.findFirst({
       where: { id: input.videoId },
-      include: { user: true },
+      include: { user: true, _count: { select: { VideoViews: true } } },
     });
 
     if (!existingVideo) throw new TRPCError({ code: 'NOT_FOUND' });
