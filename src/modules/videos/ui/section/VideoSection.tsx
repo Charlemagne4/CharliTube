@@ -28,6 +28,7 @@ export default VideoSection;
 function VideoSectionSuspense({ videoId, anonId }: VideoSectionProps) {
   const utils = trpc.useUtils();
   const [video] = trpc.videos.getOne.useSuspenseQuery({ videoId });
+  const [viewerReaction] = trpc.reactions.getOne.useSuspenseQuery({ videoId });
   //TODO: check if this create race conditions when video plays but session is not ready
   const addView = trpc.views.create.useMutation({
     onSuccess: () => {
@@ -68,7 +69,7 @@ function VideoSectionSuspense({ videoId, anonId }: VideoSectionProps) {
         // status="Waiting"
         status={video.muxStatus}
       />
-      <VideoTopRow video={video} />
+      <VideoTopRow video={video} viewerReaction={viewerReaction} />
     </>
   );
 }
