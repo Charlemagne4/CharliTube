@@ -31,6 +31,8 @@ model User {
   //Video Content 
   Videos        Video[]
   VideoReaction VideoReaction[]
+  Subscriptions Subscription[]  @relation("ViewerSubscriptions")
+  Subscribers   Subscription[]  @relation("CreatorSubscriptions")
 }
 
 enum Role {
@@ -164,4 +166,17 @@ model VideoReaction {
 enum reactionType {
   like
   dislike
+}
+
+model Subscription {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  viewerId  String @db.ObjectId
+  creatorId String @db.ObjectId
+
+  viewer  User @relation("ViewerSubscriptions", fields: [viewerId], references: [id])
+  creator User @relation("CreatorSubscriptions", fields: [creatorId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([viewerId, creatorId])
 }

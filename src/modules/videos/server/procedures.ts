@@ -11,9 +11,22 @@ import { env } from '@/data/server';
 
 export const videosRouter = createTRPCRouter({
   getOne: baseProcedure.input(z.object({ videoId: z.string() })).query(async ({ input }) => {
+    // const { session } = ctx;
+
     const existingVideo = await prisma.video.findFirst({
       where: { id: input.videoId },
-      include: { user: true, VideoReaction: true, _count: { select: { VideoViews: true } } },
+      include: {
+        user: {include: {_count:{select:{Subscribers:true}}}},
+        //this finds a user subscription array but need to filter it so a separate procedure is advisable
+        // {
+        //   include: {
+        //     ...(session?.user ? { Subscriptions: { where: { viewerId: session.user.id } } } : {}),
+        //   },
+        // },
+
+        VideoReaction: true,
+        _count: { select: { VideoViews: true } },
+      },
     });
 
     if (!existingVideo) throw new TRPCError({ code: 'NOT_FOUND' });

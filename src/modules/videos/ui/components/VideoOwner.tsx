@@ -3,10 +3,10 @@ import { VideoGetOneOutput } from '../../types';
 import UserAvatar from '@/components/UserAvatar';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import SubscriptionButton from '@/modules/Subscriptions/ui/components/SubscriptionButton';
 import UserInfo from '@/modules/Users/ui/components/UserInfo';
+import useSubscriptions from '@/modules/Subscriptions/hooks/useSubscriptions';
 
 interface VideoOwnerProps {
   user: VideoGetOneOutput['user'];
@@ -26,7 +26,11 @@ function VideoOwner({ user, videoId }: VideoOwnerProps) {
 }
 export default VideoOwner;
 function VideoOwnerSuspense({ user, videoId }: VideoOwnerProps) {
-  const { data: session, status } = useSession();
+  const { isPending, onClick, status, isSubscribed, session } = useSubscriptions({
+    userId: user.id,
+    fromVideoId: videoId,
+  });
+
   return (
     <div className="flex min-w-0 items-center justify-between gap-3 sm:items-start sm:justify-start">
       {/* TODO: make the link Dynamic example /Fireship/id */}
@@ -40,7 +44,9 @@ function VideoOwnerSuspense({ user, videoId }: VideoOwnerProps) {
           <div className="flex min-w-0 flex-col">
             <UserInfo name={user.name || nameFallback} size={'lg'} />
             {/* TODO: properly implement Subscribers data */}
-            <span className="text-muted-foreground line-clamp-1 text-sm">0 subscribers</span>
+            <span className="text-muted-foreground line-clamp-1 text-sm">
+              {user._count.Subscribers} Subscribers
+            </span>
           </div>
         </div>
       </Link>
@@ -50,9 +56,9 @@ function VideoOwnerSuspense({ user, videoId }: VideoOwnerProps) {
         </Button>
       ) : (
         <SubscriptionButton
-          onClick={() => console.log('Subscribe clicked')}
-          disabled={false}
-          isSubscribed={false}
+          onClick={onClick}
+          disabled={isPending}
+          isSubscribed={isSubscribed || false}
           className="flex-none"
         />
       )}
