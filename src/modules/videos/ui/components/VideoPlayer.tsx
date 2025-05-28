@@ -1,3 +1,4 @@
+import { Skeleton } from '@/components/ui/skeleton';
 import { THUMBNAIL_FALLBACK } from '@/constants';
 import MuxPlayer from '@mux/mux-player-react';
 
@@ -9,7 +10,6 @@ interface VideoPlayerProps {
 }
 function VideoPlayer({ onPlay, thumbnailUrl, autoPlay, playbackId }: VideoPlayerProps) {
   // if (!playbackId) return null;
-
   return (
     <MuxPlayer
       playbackId={playbackId || ''}
@@ -24,3 +24,7 @@ function VideoPlayer({ onPlay, thumbnailUrl, autoPlay, playbackId }: VideoPlayer
   );
 }
 export default VideoPlayer;
+
+export function VideoPlayerSkeleton() {
+  return <Skeleton className="aspect-video rounded-xl bg-black" />;
+}
