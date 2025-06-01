@@ -3,6 +3,8 @@ import { Avatar } from './ui/avatar';
 import { cva, type VariantProps } from 'class-variance-authority';
 import Image from 'next/image';
 
+const nameFallback = 'Jean Michelle Bruitage';
+
 const avatarVariants = cva('', {
   variants: {
     size: {
@@ -10,15 +12,15 @@ const avatarVariants = cva('', {
       xs: 'h-4 w-4',
       sm: 'h-6 w-6',
       lg: 'h-10 w-10',
-      xl: 'h-[160px] w-[160px]'
-    }
+      xl: 'h-[160px] w-[160px]',
+    },
   },
-  defaultVariants: { size: 'default' }
+  defaultVariants: { size: 'default' },
 });
 
 interface UserAvatarProps extends VariantProps<typeof avatarVariants> {
-  imageUrl: string;
-  name: string;
+  imageUrl: string | null | undefined;
+  name: string | null | undefined;
   className?: string;
   onClick?: () => void;
 }
@@ -26,7 +28,12 @@ interface UserAvatarProps extends VariantProps<typeof avatarVariants> {
 function UserAvatar({ imageUrl, name, onClick, className, size }: UserAvatarProps) {
   return (
     <Avatar className={cn(avatarVariants({ size, className }))} onClick={onClick}>
-      <Image src={imageUrl} alt={name} width={200} height={200} />
+      <Image
+        src={imageUrl || 'https://i.redd.it/jcilrifkq35a1.png'}
+        alt={name || nameFallback}
+        width={200}
+        height={200}
+      />
     </Avatar>
   );
 }

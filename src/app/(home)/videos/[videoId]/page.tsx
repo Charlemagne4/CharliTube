@@ -15,6 +15,9 @@ async function page({ params }: pageProps) {
   const { videoId } = await params;
 
   void trpc.videos.getOne.prefetch({ videoId });
+  //TODO: change to prefetchInfinite when implementing pagination
+  void trpc.comments.getMany.prefetch({ videoId });
+
   void trpc.reactions.getOne.prefetch({ videoId });
 
   return (

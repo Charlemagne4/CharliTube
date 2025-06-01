@@ -13,8 +13,6 @@ interface VideoOwnerProps {
   videoId: VideoGetOneOutput['id'];
 }
 
-const nameFallback = 'Jean Michelle Bruitage';
-
 function VideoOwner({ user, videoId }: VideoOwnerProps) {
   return (
     <Suspense fallback={<p>Loading Owner</p>}>
@@ -36,13 +34,9 @@ function VideoOwnerSuspense({ user, videoId }: VideoOwnerProps) {
       {/* TODO: make the link Dynamic example /Fireship/id */}
       <Link href={`/users/${user.id}`}>
         <div className="flex min-w-0 items-center justify-end gap-3">
-          <UserAvatar
-            size={'lg'}
-            name={user.name || nameFallback}
-            imageUrl={user.image || 'https://i.redd.it/jcilrifkq35a1.png'}
-          />
+          <UserAvatar size={'lg'} name={user.name} imageUrl={user.image} />
           <div className="flex min-w-0 flex-col">
-            <UserInfo name={user.name || nameFallback} size={'lg'} />
+            <UserInfo name={user.name} size={'lg'} />
             {/* TODO: properly implement Subscribers data */}
             <span className="text-muted-foreground line-clamp-1 text-sm">
               {user._count.Subscribers} Subscribers

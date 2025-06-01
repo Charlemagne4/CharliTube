@@ -113,3 +113,27 @@ export const CreateVideoReactionSchema = z.object({
 export const UpdateVideoReactionSchema = z.object({
   reactionType: ReactionTypeSchema,
 });
+
+export const VideoCommentSelectSchema = z.object({
+  id: z.boolean().optional(),
+  videoId: z.boolean().optional(),
+  userId: z.boolean().optional(),
+  content: z.boolean().optional(),
+  createdAt: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  user: z.boolean().optional(),
+  video: z.boolean().optional(),
+});
+
+export const VideoCommentCreateSchema = z.object({
+  videoId: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid video ID'),
+  userId: z
+    .string()
+    .regex(/^[0-9a-fA-F]{24}$/, 'Invalid user ID')
+    .optional(),
+  content: z.string().min(1, 'Comment content is required'),
+});
+
+export const VideoCommentUpdateSchema = z.object({
+  content: z.string().min(1, 'Comment content is required'),
+});

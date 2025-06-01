@@ -2,6 +2,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 
+const nameFallback = 'Jean Michelle Bruitage';
+
 const UserinfoVariants = cva('flex items-center gap-1', {
   variants: {
     size: {
@@ -13,10 +15,10 @@ const UserinfoVariants = cva('flex items-center gap-1', {
   defaultVariants: { size: 'default' },
 });
 interface UserInfoProps extends VariantProps<typeof UserinfoVariants> {
-  name: string;
+  name: string | null | undefined;
   className?: string;
 }
-function UserInfo({ name, className, size }: UserInfoProps) {
+function UserInfo({ name = nameFallback, className, size }: UserInfoProps) {
   return (
     <div className={cn(UserinfoVariants({ size, className }))}>
       <Tooltip>
