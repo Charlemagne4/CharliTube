@@ -63,6 +63,7 @@ export async function POST(request: Request) {
         });
 
         console.log('Video updated:', updatedVideo.id);
+        return new Response('Video Created', { status: 200 });
       } catch (error) {
         console.error('Failed to update video:', error);
         return new Response('Video not found or database error', { status: 404 });
