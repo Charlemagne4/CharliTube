@@ -16,7 +16,7 @@ export const videosRouter = createTRPCRouter({
     const existingVideo = await prisma.video.findFirst({
       where: { id: input.videoId },
       include: {
-        user: {include: {_count:{select:{Subscribers:true}}}},
+        user: { include: { _count: { select: { Subscribers: true } } } },
         //this finds a user subscription array but need to filter it so a separate procedure is advisable
         // {
         //   include: {

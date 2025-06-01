@@ -39,8 +39,9 @@ export const videoCommentsRouter = createTRPCRouter({
         limit: z.number().min(1).max(100),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { videoId, limit, cursor } = input;
+      const userId = ctx.session?.user?.id;
       const dataPromise = prisma.videoComment.findMany({
         where: { videoId },
         include: { user: true },
@@ -67,9 +68,58 @@ export const videoCommentsRouter = createTRPCRouter({
             updatedAt: lastItem.updatedAt,
           }
         : null;
+      // 1. Get all comment IDs
+      const commentIds = items.map((comment) => comment.id);
+
+      // 2. Get like/dislike counts for each comment
+      const reactions = await prisma.commentReaction.groupBy({
+        by: ['commentId', 'reactionType'],
+        where: { commentId: { in: commentIds } },
+        _count: true,
+      });
+
+      // 3. Map counts to each comment
+      const reactionMap: Record<string, { like: number; dislike: number }> = {};
+      reactions.forEach(({ commentId, reactionType, _count }) => {
+        if (!reactionMap[commentId]) reactionMap[commentId] = { like: 0, dislike: 0 };
+        reactionMap[commentId][reactionType] = _count;
+      });
+
+      // 4. Get current user's reactions for these comments (if logged in)
+      const userReactions: Record<string, 'like' | 'dislike'> = {};
+      if (userId) {
+        const userReactionRows = await prisma.commentReaction.findMany({
+          where: {
+            commentId: { in: commentIds },
+            userId,
+          },
+          select: {
+            commentId: true,
+            reactionType: true,
+          },
+        });
+        userReactionRows.forEach(({ commentId, reactionType }) => {
+          userReactions[commentId] = reactionType;
+        });
+      }
+
+      const itemsWithCounts = items.map((comment) => {
+        const likeCount = reactionMap[comment.id]?.like || 0;
+        const dislikeCount = reactionMap[comment.id]?.dislike || 0;
+        const hasLiked = userReactions[comment.id] === 'like';
+        const hasDisliked = userReactions[comment.id] === 'dislike';
+        return {
+          ...comment,
+          likeCount,
+          dislikeCount,
+          hasLiked,
+          hasDisliked,
+        };
+      });
+
       return {
         commentCount,
-        items,
+        items: itemsWithCounts,
         nextCursor,
       };
     }),
