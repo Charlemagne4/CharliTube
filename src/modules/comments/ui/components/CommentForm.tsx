@@ -13,9 +13,18 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 
 interface CommentFormProps {
   videoId: string;
+  parentId?: string;
   onSuccess?: () => void;
+  onCancel?: () => void;
+  variant?: 'reply' | 'comment';
 }
-function CommentForm({ videoId, onSuccess }: CommentFormProps) {
+function CommentForm({
+  videoId,
+  onSuccess,
+  onCancel,
+  parentId,
+  variant = 'comment',
+}: CommentFormProps) {
   const { data: session, status } = useSession();
   const utils = trpc.useUtils();
   const router = useRouter();
@@ -36,6 +45,7 @@ function CommentForm({ videoId, onSuccess }: CommentFormProps) {
   const form = useForm<z.infer<typeof VideoCommentCreateSchema>>({
     resolver: zodResolver(VideoCommentCreateSchema.omit({ userId: true })),
     defaultValues: {
+      parentId,
       content: '',
       videoId,
     },
@@ -47,6 +57,11 @@ function CommentForm({ videoId, onSuccess }: CommentFormProps) {
 
   if (status === 'loading') {
     return <span>loading User...</span>;
+  }
+
+  function handleCancel(): void {
+    form.reset();
+    onCancel?.();
   }
 
   return (
@@ -62,7 +77,9 @@ function CommentForm({ videoId, onSuccess }: CommentFormProps) {
                 <FormControl>
                   <Textarea
                     {...field}
-                    placeholder="add a comment..."
+                    placeholder={
+                      variant === 'reply' ? `Reply to this comment...` : 'Add a comment...'
+                    }
                     className="min-h-0 resize-none overflow-hidden bg-transparent"
                   />
                 </FormControl>
@@ -71,8 +88,13 @@ function CommentForm({ videoId, onSuccess }: CommentFormProps) {
             )}
           />
           <div className="mt-2 flex justify-end">
+            {onCancel && (
+              <Button variant={'ghost'} type="button" onClick={handleCancel}>
+                Cancel
+              </Button>
+            )}
             <Button type="submit" size={'sm'}>
-              Comment
+              {variant === 'reply' ? 'Reply' : 'Comment'}
             </Button>
           </div>
         </div>

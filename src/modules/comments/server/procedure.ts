@@ -18,18 +18,30 @@ export const videoCommentsRouter = createTRPCRouter({
       return { success: true };
     }),
   create: protectedProcedure.input(VideoCommentCreateSchema).mutation(async ({ input, ctx }) => {
-    const { videoId, content } = input;
+    const { videoId, content, parentId } = input;
     const { id: userId } = ctx.user;
     const safeUserId = userId;
-    const deletedComment = await prisma.videoComment.create({
+
+    const existingComment = await prisma.videoComment.findFirst({ where: { id: parentId } });
+
+    if (!existingComment && parentId) {
+      throw new TRPCError({ code: 'NOT_FOUND' });
+    }
+
+    if (existingComment?.parentId && parentId) {
+      throw new TRPCError({ code: 'BAD_REQUEST' });
+    }
+
+    const createdComment = await prisma.videoComment.create({
       data: {
         userId: safeUserId,
         videoId,
+        parentId,
         content,
       },
     });
-    if (!deletedComment) throw new TRPCError({ code: 'NOT_FOUND' });
-    return deletedComment;
+    if (!createdComment) throw new TRPCError({ code: 'NOT_FOUND' });
+    return createdComment;
   }),
   getMany: baseProcedure
     .input(
@@ -43,7 +55,7 @@ export const videoCommentsRouter = createTRPCRouter({
       const { videoId, limit, cursor } = input;
       const userId = ctx.session?.user?.id;
       const dataPromise = prisma.videoComment.findMany({
-        where: { videoId },
+        where: { videoId, parent: null },
         include: { user: true },
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
         take: limit + 1,
@@ -78,12 +90,33 @@ export const videoCommentsRouter = createTRPCRouter({
         _count: true,
       });
 
+      const replies = await prisma.videoComment.findMany({
+        where: {
+          videoId,
+          parentId: {
+            not: null,
+          },
+        },
+      });
+
+      const replyMap: Record<string, { replyCount: number }> = {};
+      replies.forEach(({ parentId }) => {
+        if (!parentId) return;
+        if (!replyMap[parentId]) {
+          replyMap[parentId] = { replyCount: 0 };
+        }
+        replyMap[parentId].replyCount++;
+      });
+
+      console.log(replyMap);
       // 3. Map counts to each comment
       const reactionMap: Record<string, { like: number; dislike: number }> = {};
       reactions.forEach(({ commentId, reactionType, _count }) => {
         if (!reactionMap[commentId]) reactionMap[commentId] = { like: 0, dislike: 0 };
         reactionMap[commentId][reactionType] = _count;
       });
+
+      //repliesCount
 
       // 4. Get current user's reactions for these comments (if logged in)
       const userReactions: Record<string, 'like' | 'dislike'> = {};
@@ -106,10 +139,12 @@ export const videoCommentsRouter = createTRPCRouter({
       const itemsWithCounts = items.map((comment) => {
         const likeCount = reactionMap[comment.id]?.like || 0;
         const dislikeCount = reactionMap[comment.id]?.dislike || 0;
+        const replyCount = replyMap[comment.id]?.replyCount || 0;
         const hasLiked = userReactions[comment.id] === 'like';
         const hasDisliked = userReactions[comment.id] === 'dislike';
         return {
           ...comment,
+          replyCount,
           likeCount,
           dislikeCount,
           hasLiked,

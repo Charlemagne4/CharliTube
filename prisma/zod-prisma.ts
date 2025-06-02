@@ -115,6 +115,7 @@ export const UpdateVideoReactionSchema = z.object({
 });
 
 export const VideoCommentSelectSchema = z.object({
+  parentId: z.boolean().optional(),
   id: z.boolean().optional(),
   videoId: z.boolean().optional(),
   userId: z.boolean().optional(),
@@ -130,6 +131,10 @@ export const VideoCommentCreateSchema = z.object({
   userId: z
     .string()
     .regex(/^[0-9a-fA-F]{24}$/, 'Invalid user ID')
+    .optional(),
+  parentId: z
+    .string()
+    .regex(/^[0-9a-fA-F]{24}$/, 'Invalid Parent ID')
     .optional(),
   content: z.string().min(1, 'Comment content is required'),
 });

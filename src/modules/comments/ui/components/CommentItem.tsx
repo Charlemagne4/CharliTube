@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import {
+  ChevronDownIcon,
+  ChevronUpIcon,
   MessageSquareIcon,
   MoreVerticalIcon,
   ThumbsDownIcon,
@@ -21,14 +23,21 @@ import {
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import CommentForm from './CommentForm';
 
 interface CommentItemProps {
   comment: CommentGetManyOutput['items'][number];
+  variant?: 'reply' | 'comment';
 }
 
-function CommentItem({ comment }: CommentItemProps) {
+function CommentItem({ comment, variant = 'comment' }: CommentItemProps) {
   const { data: session } = useSession();
   const router = useRouter();
+
+  const [isReplyOpen, setIsReplyOpen] = useState(false);
+  const [isRepliesOpen, setIsRepliesOpen] = useState(false);
+
   const utils = trpc.useUtils();
   const remove = trpc.comments.remove.useMutation({
     onSuccess: () => {
@@ -112,6 +121,16 @@ function CommentItem({ comment }: CommentItemProps) {
               </Button>
               <span className="text-muted-foreground text-xs">{comment.dislikeCount}</span>
             </div>
+            {variant === 'comment' && (
+              <Button
+                variant={'ghost'}
+                size={'sm'}
+                className="h-8"
+                onClick={() => setIsReplyOpen(true)}
+              >
+                Reply
+              </Button>
+            )}
           </div>
         </div>
         <DropdownMenu modal={false}>
@@ -121,10 +140,12 @@ function CommentItem({ comment }: CommentItemProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => {}}>
-              <MessageSquareIcon className="size-4" />
-              Reply
-            </DropdownMenuItem>
+            {variant === 'comment' && (
+              <DropdownMenuItem onClick={() => setIsReplyOpen(true)}>
+                <MessageSquareIcon className="size-4" />
+                Reply
+              </DropdownMenuItem>
+            )}
             {comment.userId === session?.user.id && (
               <DropdownMenuItem
                 onClick={() => {
@@ -138,6 +159,35 @@ function CommentItem({ comment }: CommentItemProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      {isReplyOpen && variant === 'comment' && (
+        <div className="mt-4 pl-14">
+          <CommentForm
+            variant="reply"
+            parentId={comment.id}
+            videoId={comment.videoId}
+            onCancel={() => {
+              setIsReplyOpen(false);
+            }}
+            onSuccess={() => {
+              setIsReplyOpen(false);
+              setIsRepliesOpen(true);
+            }}
+          />
+        </div>
+      )}
+      {comment.replyCount > 0 && variant === 'comment' && (
+        <div className="pl-14">
+          <Button
+            size={'sm'}
+            onClick={() => {
+              setIsRepliesOpen((current) => !current);
+            }}
+          >
+            {isRepliesOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+            {comment.replyCount} replies
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
