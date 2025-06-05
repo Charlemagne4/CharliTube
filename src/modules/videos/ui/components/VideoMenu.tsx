@@ -12,7 +12,7 @@ interface VideoMenuProps {
 }
 
 //TODO: video menu features
-function VideoMenu({ videoId, onRemove, variant }: VideoMenuProps) {
+function VideoMenu({ videoId, onRemove, variant = 'ghost' }: VideoMenuProps) {
   function onShare() {
     const fullUrl = `${process.env.VERCEL_URL || 'http://localhost:3000'}/videos/${videoId}`;
     navigator.clipboard.writeText(fullUrl);

@@ -18,8 +18,8 @@ async function page({ params }: pageProps) {
   void trpc.videos.getOne.prefetch({ videoId });
   //TODO: change to prefetchInfinite when implementing pagination
   void trpc.comments.getMany.prefetchInfinite({ videoId, limit: DEFAULT_LIMIT });
-
   void trpc.reactions.getOne.prefetch({ videoId });
+  void trpc.suggestions.getMany.prefetchInfinite({ videoId, limit: DEFAULT_LIMIT });
 
   return (
     <HydrateClient>
