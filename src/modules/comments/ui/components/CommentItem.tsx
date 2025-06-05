@@ -25,6 +25,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import CommentForm from './CommentForm';
+import CommentReplies from './CommentReplies';
 
 interface CommentItemProps {
   comment: CommentGetManyOutput['items'][number];
@@ -77,7 +78,11 @@ function CommentItem({ comment, variant = 'comment' }: CommentItemProps) {
     <div>
       <div className="flex gap-4">
         <Link href={`/users/${comment.userId}`}>
-          <UserAvatar imageUrl={user.image} name={user.name} size={'lg'} />
+          <UserAvatar
+            imageUrl={user.image}
+            name={user.name}
+            size={variant === 'comment' ? 'lg' : 'sm'}
+          />
         </Link>
         <div className="min-w-0 flex-1">
           <Link href={`/users/${comment.userId}`}>
@@ -178,6 +183,7 @@ function CommentItem({ comment, variant = 'comment' }: CommentItemProps) {
       {comment.replyCount > 0 && variant === 'comment' && (
         <div className="pl-14">
           <Button
+            variant={'tertiary'}
             size={'sm'}
             onClick={() => {
               setIsRepliesOpen((current) => !current);
@@ -187,6 +193,9 @@ function CommentItem({ comment, variant = 'comment' }: CommentItemProps) {
             {comment.replyCount} replies
           </Button>
         </div>
+      )}
+      {comment.replyCount > 0 && variant === 'comment' && isRepliesOpen && (
+        <CommentReplies parentId={comment.id} videoId={comment.videoId} />
       )}
     </div>
   );

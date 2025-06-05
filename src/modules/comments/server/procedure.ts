@@ -47,16 +47,17 @@ export const videoCommentsRouter = createTRPCRouter({
     .input(
       z.object({
         videoId: z.string(),
+        parentId: z.string().nullish(),
         cursor: z.object({ id: z.string(), updatedAt: z.date() }).nullish(),
         limit: z.number().min(1).max(100),
       }),
     )
     .query(async ({ input, ctx }) => {
-      const { videoId, limit, cursor } = input;
+      const { videoId, limit, cursor, parentId } = input;
       const userId = ctx.session?.user?.id;
       const dataPromise = prisma.videoComment.findMany({
-        where: { videoId, parent: null },
-        include: { user: true },
+        where: { videoId, ...(parentId ? { parentId } : { parent: null }) },
+        include: { user: true, replies: true },
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
         take: limit + 1,
         ...(cursor
@@ -80,6 +81,8 @@ export const videoCommentsRouter = createTRPCRouter({
             updatedAt: lastItem.updatedAt,
           }
         : null;
+
+      //TODO:optimize following db hits
       // 1. Get all comment IDs
       const commentIds = items.map((comment) => comment.id);
 
