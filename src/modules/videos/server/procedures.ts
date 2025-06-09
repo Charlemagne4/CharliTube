@@ -106,6 +106,34 @@ export const videosRouter = createTRPCRouter({
 
       return removedVideo;
     }),
+  revalidate: protectedProcedure
+    .input(z.object({ videoId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { id: userId } = ctx.user;
+      const { videoId } = input;
+
+      const existingVideo = await prisma.video.findFirst({ where: { userId, id: videoId } });
+      if (!existingVideo) throw new TRPCError({ code: 'NOT_FOUND' });
+      if (!existingVideo.muxUploadId) throw new TRPCError({ code: 'BAD_REQUEST' });
+
+      const upload = await mux.video.uploads.retrieve(existingVideo.muxUploadId);
+
+      if (!upload || !upload.asset_id) throw new TRPCError({ code: 'BAD_REQUEST' });
+
+      const asset = await mux.video.assets.retrieve(upload.asset_id);
+      if (!asset) throw new TRPCError({ code: 'BAD_REQUEST' });
+
+      const updatedVideo = await prisma.video.update({
+        where: { userId, id: videoId },
+        data: {
+          muxStatus: asset.status,
+          muxPlaybackId: asset.playback_ids?.[0].id,
+          muxAssetId: asset.id,
+          duration: asset.duration,
+        },
+      });
+      return updatedVideo;
+    }),
   restore: protectedProcedure
     .input(z.object({ videoId: z.string() }))
     .mutation(async ({ ctx, input }) => {
