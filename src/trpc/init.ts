@@ -12,21 +12,38 @@ export async function createTRPCContext() {
   const session = await getServerSession(authOptions); // Using getServerSession here
   // console.log('>>>>-session:', session);
   return {
-    session
+    session,
   };
 }
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
-  transformer: superjson
+  transformer: superjson,
+});
+
+const timingMiddleware = t.middleware(async ({ next, path }) => {
+  const start = Date.now();
+
+  if (t._config.isDev) {
+    // artificial delay in dev
+    const waitMs = Math.floor(Math.random() * 400) + 100;
+    await new Promise((resolve) => setTimeout(resolve, waitMs));
+  }
+
+  const result = await next();
+
+  const end = Date.now();
+  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+
+  return result;
 });
 
 export const createTRPCRouter = t.router;
 
 export const createCallerFactory = t.createCallerFactory;
 
-export const baseProcedure = t.procedure;
+export const baseProcedure = t.procedure.use(timingMiddleware);
 
-export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
+export const protectedProcedure = baseProcedure.use(timingMiddleware).use(async ({ ctx, next }) => {
   if (!ctx.session?.user) {
     throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Must be logged In' });
   }
@@ -46,7 +63,7 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
   return next({
     ctx: {
       ...ctx,
-      user
-    }
+      user,
+    },
   });
 });
