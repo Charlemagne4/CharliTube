@@ -1,13 +1,14 @@
 import { cva, VariantProps } from 'class-variance-authority';
 import { VideoGetManyOutput } from '../../types';
 import Link from 'next/link';
-import VideoThumbnail from './VideoThumbnail';
+import VideoThumbnail, { VideoThumbnailSkeleton } from './VideoThumbnail';
 import { cn } from '@/lib/utils';
 import UserAvatar from '@/components/UserAvatar';
 import UserInfo from '@/modules/Users/ui/components/UserInfo';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import VideoMenu from './VideoMenu';
 import { useMemo } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const videoRowCardVariants = cva('group flex min-w-0', {
   variants: {
@@ -34,8 +35,38 @@ interface videoRowCardProps extends VariantProps<typeof videoRowCardVariants> {
   onRemove?: () => void;
 }
 
-export function videoRowCardSkeleton() {
-  return <div>videoRowCardSkeleton</div>;
+export function VideoRowCardSkeleton({ size }: VariantProps<typeof videoRowCardVariants>) {
+  return (
+    <div className={videoRowCardVariants({ size })}>
+      {/* thumbnail skeleton */}
+      <div className={thumbnailVariants({ size })}>
+        <VideoThumbnailSkeleton />
+      </div>
+
+      {/* info Skeleton */}
+      <div className="min-w-0 flex-1">
+        <div className="flex justify-between gap-x-2">
+          <div className="min-w-0 flex-1">
+            <Skeleton className={cn('h-5 w-[40%]', size === 'compact' && 'h-4 w-[40%]')} />
+            {size === 'default' && (
+              <>
+                <Skeleton className="mt-1 h-4 w-[20%]" />
+                <div className="my-3 flex items-center gap-2">
+                  <Skeleton className="size-8 rounded-full" />
+                  <Skeleton className="h-4 w-24" />
+                </div>
+              </>
+            )}
+            {size === 'compact' && (
+              <>
+                <Skeleton className="mt-1 h-4 w-[50%]" />
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function VideoRowCard({ data, onRemove, size }: videoRowCardProps) {

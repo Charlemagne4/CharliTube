@@ -5,11 +5,25 @@ import Link from 'next/link';
 import UserAvatar from '@/components/UserAvatar';
 import UserInfo from '@/modules/Users/ui/components/UserInfo';
 import VideoMenu from './VideoMenu';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface VideoInfoProps {
   data: VideoGetManyOutput['items'][number];
   onRemove?: () => void;
 }
+
+export function VideoInfoSkeleton() {
+  return (
+    <div className="flex gap-3">
+      <Skeleton className="size-10 shrink-0 rounded-full" />
+      <div className="min-w-0 flex-1 gap-y-2">
+        <Skeleton className="h-5 w-[90%]" />
+        <Skeleton className="h-5 w-[70%]" />
+      </div>
+    </div>
+  );
+}
+
 function VideoInfo({ data, onRemove }: VideoInfoProps) {
   const compactViews = useMemo(() => {
     return Intl.NumberFormat('en', { notation: 'compact' }).format(data._count.VideoViews);

@@ -27,6 +27,7 @@ export const suggestionsRouter = createTRPCRouter({
       const data = await prisma.video.findMany({
         where: {
           ...(existingVideo.categoryId ? { categoryId: existingVideo.categoryId } : {}),
+          visibility: 'public',
           id: {
             not: videoId,
           },
