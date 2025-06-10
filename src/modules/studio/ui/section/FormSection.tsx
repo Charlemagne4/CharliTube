@@ -54,7 +54,7 @@ import { snakeCaseToTitle } from '@/lib/utils';
 import { Visibility } from '../../../../../generated/prisma';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { THUMBNAIL_FALLBACK } from '@/constants';
+import { APP_URL, THUMBNAIL_FALLBACK } from '@/constants';
 import ThumbnailUploadModal from '../components/ThumbnailUploadModal';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { TooltipProvider } from '@radix-ui/react-tooltip';
@@ -172,7 +172,7 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
     update.mutateAsync(data);
   };
 
-  const fullUrl = `${process.env.VERCEL_URL || 'http://localhost:3000'}/videos/${videoId}`;
+  const fullUrl = `https://${APP_URL || 'http://localhost:3000'}/videos/${videoId}`;
 
   const onCopy = async () => {
     navigator.clipboard.writeText(fullUrl);

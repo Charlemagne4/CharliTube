@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { APP_URL } from '@/constants';
 import { ShadcnButtonProps } from '@/modules/Subscriptions/ui/components/SubscriptionButton';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
 import { ListPlusIcon, MoreVerticalIcon, ShareIcon, Trash2Icon } from 'lucide-react';
@@ -14,7 +15,7 @@ interface VideoMenuProps {
 //TODO: video menu features
 function VideoMenu({ videoId, onRemove, variant = 'ghost' }: VideoMenuProps) {
   function onShare() {
-    const fullUrl = `${process.env.VERCEL_URL || 'http://localhost:3000'}/videos/${videoId}`;
+    const fullUrl = `${APP_URL || 'http://localhost:3000'}/videos/${videoId}`;
     navigator.clipboard.writeText(fullUrl);
     toast.success('Link copied to clipboard');
   }

@@ -135,6 +135,8 @@ model Video {
   VideoViews    VideoView[]
   VideoReaction VideoReaction[]
   VideoComment  VideoComment[]
+
+  @@fulltext([title(sort: Desc), description])
 }
 
 model VideoComment {
