@@ -23,6 +23,12 @@ function useSubscriptions({ userId, fromVideoId }: useSubscriptionsProps) {
     onSuccess: () => {
       utils.subscriptions.getOne.invalidate({ userId });
       utils.videos.getOne.invalidate({ videoId: fromVideoId });
+      utils.videos.getManySubscribed.invalidate();
+
+      if (fromVideoId) {
+        utils.videos.getOne.invalidate();
+      }
+
       toast.success('Subscribed');
     },
     onError: (error) => {
@@ -36,6 +42,12 @@ function useSubscriptions({ userId, fromVideoId }: useSubscriptionsProps) {
     onSuccess: () => {
       utils.subscriptions.getOne.invalidate({ userId });
       utils.videos.getOne.invalidate({ videoId: fromVideoId });
+      utils.videos.getManySubscribed.invalidate();
+
+      if (fromVideoId) {
+        utils.videos.getOne.invalidate();
+      }
+
       toast.success('Unsubscribed');
     },
     onError: (error) => {

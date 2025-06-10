@@ -10,6 +10,179 @@ import { workflowUpstashClient } from '@/lib/qstashWorkflow';
 import { env } from '@/data/server';
 
 export const videosRouter = createTRPCRouter({
+  getManySubscribed: protectedProcedure
+    .input(
+      z.object({
+        cursor: z
+          .object({
+            id: z.string(),
+            updatedAt: z.date(),
+          })
+          .nullish(),
+        limit: z.number().min(1).max(100),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, cursor } = input;
+      const { id: userId } = ctx.user;
+      const ViewerSubscriptions = await prisma.subscription.findMany({
+        where: { viewerId: userId },
+      });
+
+      const subscribedCreators = ViewerSubscriptions.map((subscription) => subscription.creatorId);
+      console.log('subscribedCreators: ', subscribedCreators);
+
+      const data = await prisma.video.findMany({
+        where: {
+          userId: { in: subscribedCreators },
+          visibility: 'public',
+        },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: limit + 1,
+        ...(cursor
+          ? {
+              cursor: { updatedAt: cursor.updatedAt, id: cursor.id },
+              skip: 1,
+            }
+          : {}),
+        //include might not be needed
+        include: {
+          user: true,
+          category: true,
+          _count: {
+            select: { VideoViews: true, VideoReaction: { where: { reactionType: 'like' } } },
+          },
+        },
+      });
+      console.log('videos of subscriber: ', data);
+
+      const hasMore = data.length > limit;
+      //remove last item if there is more data
+      const items = hasMore ? data.slice(0, -1) : data;
+      // set the next cursor to the last item if there is more data
+      const lastItem = items[items.length - 1];
+      const nextCursor = hasMore
+        ? {
+            id: lastItem.id,
+            updatedAt: lastItem.updatedAt,
+          }
+        : null;
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
+  getManyTrending: baseProcedure
+    .input(
+      z.object({
+        cursor: z
+          .object({
+            id: z.string(),
+            updatedAt: z.date(),
+          })
+          .nullish(),
+        limit: z.number().min(1).max(100),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { limit, cursor } = input;
+
+      const data = await prisma.video.findMany({
+        where: {
+          visibility: 'public',
+        },
+        orderBy: [{ VideoViews: { _count: 'desc' } }, { updatedAt: 'desc' }, { id: 'desc' }],
+        take: limit + 1,
+        ...(cursor
+          ? {
+              cursor: { updatedAt: cursor.updatedAt, id: cursor.id },
+              skip: 1,
+            }
+          : {}),
+        //include might not be needed
+        include: {
+          user: true,
+          category: true,
+          _count: {
+            select: { VideoViews: true, VideoReaction: { where: { reactionType: 'like' } } },
+          },
+        },
+      });
+
+      const hasMore = data.length > limit;
+      //remove last item if there is more data
+      const items = hasMore ? data.slice(0, -1) : data;
+      // set the next cursor to the last item if there is more data
+      const lastItem = items[items.length - 1];
+      const nextCursor = hasMore
+        ? {
+            id: lastItem.id,
+            updatedAt: lastItem.updatedAt,
+          }
+        : null;
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
+  getMany: baseProcedure
+    .input(
+      z.object({
+        categoryId: z.string().nullish(),
+        cursor: z
+          .object({
+            id: z.string(),
+            updatedAt: z.date(),
+          })
+          .nullish(),
+        limit: z.number().min(1).max(100),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { limit, cursor, categoryId } = input;
+
+      const data = await prisma.video.findMany({
+        where: {
+          ...(categoryId ? { categoryId } : {}),
+          visibility: 'public',
+        },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        take: limit + 1,
+        ...(cursor
+          ? {
+              cursor: { updatedAt: cursor.updatedAt, id: cursor.id },
+              skip: 1,
+            }
+          : {}),
+        //include might not be needed
+        include: {
+          user: true,
+          category: true,
+          _count: {
+            select: { VideoViews: true, VideoReaction: { where: { reactionType: 'like' } } },
+          },
+        },
+      });
+
+      const hasMore = data.length > limit;
+      //remove last item if there is more data
+      const items = hasMore ? data.slice(0, -1) : data;
+      // set the next cursor to the last item if there is more data
+      const lastItem = items[items.length - 1];
+      const nextCursor = hasMore
+        ? {
+            id: lastItem.id,
+            updatedAt: lastItem.updatedAt,
+          }
+        : null;
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
   getOne: baseProcedure.input(z.object({ videoId: z.string() })).query(async ({ input }) => {
     // const { session } = ctx;
 

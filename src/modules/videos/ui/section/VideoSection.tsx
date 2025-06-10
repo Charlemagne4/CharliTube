@@ -59,7 +59,7 @@ function VideoSectionSuspense({ videoId, anonId }: VideoSectionProps) {
         )}
       >
         <VideoPlayer
-          // autoPlay
+          autoPlay
           onPlay={() => {}}
           playbackId={video.muxPlaybackId}
           thumbnailUrl={video.thumbnailUrl}
