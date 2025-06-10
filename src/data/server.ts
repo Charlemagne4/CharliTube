@@ -24,8 +24,9 @@ export const env = createEnv({
     CO_API_KEY: z.string(),
     DEEPSEEK_API_KEY: z.string(),
   },
-  client: {},
-
+  client: { NEXT_PUBLIC_APP_URL: z.string().url() },
   // For Next.js >= 13.4.4, you only need to destructure client variables:
-  experimental__runtimeEnv: {},
+  experimental__runtimeEnv: {
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+  },
 });

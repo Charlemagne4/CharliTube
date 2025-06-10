@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { HomeLayout } from '@/modules/home/ui/layouts/HomeLayout';
 import { ReactNode } from 'react';
 

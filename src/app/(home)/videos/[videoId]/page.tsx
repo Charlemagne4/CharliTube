@@ -3,6 +3,8 @@ import VideoView from '@/modules/videos/views/VideoView';
 import { HydrateClient, trpc } from '@/trpc/server';
 import { cookies } from 'next/headers';
 
+export const dynamic = 'force-dynamic';
+
 interface pageProps {
   params: Promise<{ videoId: string }>;
 }
