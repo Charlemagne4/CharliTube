@@ -10,6 +10,7 @@ import { videoCommentsRouter } from '@/modules/comments/server/procedure';
 import { VideoReactionsRouter } from '@/modules/videoReactions/server/procedure';
 import { CommentReactionsRouter } from '@/modules/commentReactions/server/procedure';
 import { searchRouter } from '@/modules/search/server/procedures';
+import { playlistsRouter } from '@/modules/playlists/server/procedures';
 
 export const appRouter = createTRPCRouter({
   studio: studioRouter,
@@ -22,6 +23,7 @@ export const appRouter = createTRPCRouter({
   commentReactions: CommentReactionsRouter,
   suggestions: suggestionsRouter,
   search: searchRouter,
+  playlists: playlistsRouter,
 });
 
 // export type definition of API

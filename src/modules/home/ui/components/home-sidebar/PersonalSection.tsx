@@ -6,9 +6,10 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
+  SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { HistoryIcon, ListVideoIcon, ThumbsUpIcon } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -17,24 +18,25 @@ const items = [
     title: 'History',
     url: '/playlists/history',
     icon: HistoryIcon,
-    auth: true
+    auth: true,
   },
   {
     title: 'Like Videos',
     url: '/playlists/liked',
     icon: ThumbsUpIcon,
-    auth: true
+    auth: true,
   },
   {
     title: 'All Playlists',
     url: '/playlists',
     icon: ListVideoIcon,
-    auth: true
-  }
+    auth: true,
+  },
 ];
 
 function PersonalSection() {
   const router = useRouter();
+  const { status } = useSession();
   return (
     <SidebarGroup>
       <SidebarGroupLabel>You</SidebarGroupLabel>

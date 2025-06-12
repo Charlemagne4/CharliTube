@@ -27,6 +27,7 @@ export default VideoSection;
 
 function VideoSectionSuspense({ videoId, anonId }: VideoSectionProps) {
   const utils = trpc.useUtils();
+  utils.playlists.getHistory.invalidate();
   const [video] = trpc.videos.getOne.useSuspenseQuery({ videoId });
   const [viewerReaction] = trpc.reactions.getOne.useSuspenseQuery({ videoId });
   //TODO: check if this create race conditions when video plays but session is not ready
