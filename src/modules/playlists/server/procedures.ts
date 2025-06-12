@@ -3,6 +3,72 @@ import { prisma } from '../../../../prisma/prisma';
 import { z } from 'zod';
 
 export const playlistsRouter = createTRPCRouter({
+  getLiked: protectedProcedure
+    .input(
+      z.object({
+        cursor: z
+          .object({
+            id: z.string(),
+            interactedAt: z.date(),
+          })
+          .nullish(),
+        limit: z.number().min(1).max(100),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, cursor } = input;
+      const { id: userId } = ctx.user;
+
+      const data = await prisma.videoReaction.findMany({
+        where: {
+          userId,
+          reactionType: 'like',
+        },
+        orderBy: [{ interactedAt: 'desc' }, { id: 'desc' }],
+        take: limit + 1,
+        ...(cursor
+          ? {
+              //hard prisma limitation here i needed to filter video by the viewedAt from the views
+              cursor: { interactedAt: cursor.interactedAt, id: cursor.id },
+              skip: 1,
+            }
+          : {}),
+        //include might not be needed
+        select: {
+          videoId: true,
+          interactedAt: true,
+          video: {
+            include: {
+              user: true,
+              category: true,
+              VideoViews: { where: { userId } },
+              _count: {
+                select: {
+                  VideoViews: true,
+                  VideoReaction: { where: { reactionType: 'like' } },
+                },
+              },
+            },
+          },
+        },
+      });
+      const hasMore = data.length > limit;
+      //remove last item if there is more data
+      const items = hasMore ? data.slice(0, -1) : data;
+      // set the next cursor to the last item if there is more data
+      const lastItem = items[items.length - 1];
+      const nextCursor = hasMore
+        ? {
+            id: lastItem.videoId,
+            interactedAt: lastItem.interactedAt,
+          }
+        : null;
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
   getHistory: protectedProcedure
     .input(
       z.object({

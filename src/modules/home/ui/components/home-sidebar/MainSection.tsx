@@ -5,35 +5,38 @@ import {
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
+  SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { FlameIcon, HomeIcon, PlaySquareIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const items = [
   {
     title: 'Home',
     url: '/',
-    icon: HomeIcon
+    icon: HomeIcon,
   },
   {
     title: 'Subscriptions',
     url: '/feed/subscriptions',
     icon: PlaySquareIcon,
-    auth: true
+    auth: true,
   },
   {
     title: 'Trending',
     url: '/feed/trending',
-    icon: FlameIcon
-  }
+    icon: FlameIcon,
+  },
 ];
 
 function MainSection() {
   const { status } = useSession();
   const router = useRouter();
+
+  const pathname = usePathname();
+
   return (
     <SidebarGroup>
       <SidebarGroupContent>
@@ -43,7 +46,7 @@ function MainSection() {
               <SidebarMenuButton
                 tooltip={item.title}
                 asChild
-                isActive={false} // TODO: look at current pathname
+                isActive={item.url === pathname}
                 onClick={(e) => {
                   if (status !== 'authenticated' && item.auth) {
                     e.preventDefault();

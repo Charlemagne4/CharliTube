@@ -48,6 +48,7 @@ function VideoReactionsSuspense({ dislikes, likes, videoId, viewerReaction }: Vi
     onSuccess: () => {
       utils.videos.getOne.invalidate({ videoId });
       utils.reactions.getOne.invalidate({ videoId });
+      utils.playlists.getLiked.invalidate();
     },
     onError: (error) => {
       if (error.data?.code === 'UNAUTHORIZED') {
@@ -60,6 +61,7 @@ function VideoReactionsSuspense({ dislikes, likes, videoId, viewerReaction }: Vi
     onSuccess: () => {
       utils.videos.getOne.invalidate({ videoId });
       utils.reactions.getOne.invalidate({ videoId });
+      utils.playlists.getLiked.invalidate();
     },
     onError: (error) => {
       if (error.data?.code === 'UNAUTHORIZED') {
