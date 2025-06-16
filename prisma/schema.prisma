@@ -35,6 +35,7 @@ model User {
   Subscribers     Subscription[]    @relation("CreatorSubscriptions")
   VideoComment    VideoComment[]
   CommentReaction CommentReaction[]
+  Playlist        Playlist[]
 }
 
 enum Role {
@@ -135,6 +136,7 @@ model Video {
   VideoViews    VideoView[]
   VideoReaction VideoReaction[]
   VideoComment  VideoComment[]
+  PlaylistVideo PlaylistVideo[]
 
   @@fulltext([title(sort: Desc), description])
 }
@@ -216,4 +218,33 @@ model Subscription {
   createdAt DateTime @default(now())
 
   @@unique([viewerId, creatorId])
+}
+
+model Playlist {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  playListVideos PlaylistVideo[]
+}
+
+model PlaylistVideo {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  playlistId String @db.ObjectId
+  videoId    String @db.ObjectId
+  // order      Int    @default(0)
+
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  video    Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([playlistId, videoId])
 }

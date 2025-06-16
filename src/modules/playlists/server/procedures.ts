@@ -1,8 +1,71 @@
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
 import { prisma } from '../../../../prisma/prisma';
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 
 export const playlistsRouter = createTRPCRouter({
+  getMany: protectedProcedure
+    .input(
+      z.object({
+        cursor: z
+          .object({
+            id: z.string(),
+            updatedAt: z.date(),
+          })
+          .nullish(),
+        limit: z.number().min(1).max(100),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, cursor } = input;
+      const { id: userId } = ctx.user;
+
+      const data = await prisma.playlist.findMany({
+        where: { userId },
+        include: { playListVideos: true, user: true, _count: { select: { playListVideos: true } } },
+        orderBy: { updatedAt: 'desc' },
+        take: limit + 1,
+        ...(cursor
+          ? {
+              cursor: { updatedAt: cursor.updatedAt, id: cursor.id },
+              skip: 1,
+            }
+          : {}),
+      });
+
+      const hasMore = data.length > limit;
+      //remove last item if there is more data
+      const items = hasMore ? data.slice(0, -1) : data;
+      // set the next cursor to the last item if there is more data
+      const lastItem = items[items.length - 1];
+      const nextCursor = hasMore
+        ? {
+            id: lastItem.id,
+            updatedAt: lastItem.updatedAt,
+          }
+        : null;
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
+  create: protectedProcedure
+    .input(
+      z.object({
+        name: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { name } = input;
+      const { id: userId } = ctx.user;
+
+      const createdPlaylist = await prisma.playlist.create({ data: { name, userId } });
+
+      if (!createdPlaylist) throw new TRPCError({ code: 'BAD_REQUEST' });
+
+      return createdPlaylist;
+    }),
   getLiked: protectedProcedure
     .input(
       z.object({
