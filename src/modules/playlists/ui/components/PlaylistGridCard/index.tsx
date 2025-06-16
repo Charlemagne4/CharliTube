@@ -22,7 +22,7 @@ function PlaylistGridCard({ data }: PlaylistGridCardProps) {
     <Link href={`/playlists/${data.id}`}>
       <div className="group flex w-full flex-col gap-2">
         <PlaylistThumbnail
-          imageUrl={THUMBNAIL_FALLBACK}
+          imageUrl={data.playListVideos?.[0]?.video?.thumbnailUrl || THUMBNAIL_FALLBACK}
           title={data.name}
           videoCount={data._count.playListVideos}
         />

@@ -4,6 +4,138 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 
 export const playlistsRouter = createTRPCRouter({
+  removeVideo: protectedProcedure
+    .input(
+      z.object({
+        playlistId: z.string(),
+        videoId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { playlistId, videoId } = input;
+      const { id: userId } = ctx.user;
+
+      const existingPlaylistPromise = prisma.playlist.findFirst({
+        where: { id: playlistId, userId },
+      });
+
+      const existingVideoPromise = prisma.video.findFirst({
+        where: { id: videoId },
+      });
+      const existingPlaylistVideoPromise = prisma.playlistVideo.findUnique({
+        where: { playlistId_videoId: { playlistId, videoId } },
+      });
+
+      const [existingPlaylist, existingVideo, existingPlaylistVideo] = await Promise.all([
+        existingPlaylistPromise,
+        existingVideoPromise,
+        existingPlaylistVideoPromise,
+      ]);
+      if (!existingPlaylist || !existingVideo) throw new TRPCError({ code: 'NOT_FOUND' });
+      if (!existingPlaylistVideo) throw new TRPCError({ code: 'NOT_FOUND' });
+
+      const deletedPlaylistvideo = await prisma.playlistVideo.delete({
+        where: { playlistId_videoId: { playlistId, videoId } },
+        include: { playlist: { select: { name: true } } },
+      });
+
+      return deletedPlaylistvideo;
+    }),
+  addVideo: protectedProcedure
+    .input(
+      z.object({
+        playlistId: z.string(),
+        videoId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { playlistId, videoId } = input;
+      const { id: userId } = ctx.user;
+
+      const existingPlaylistPromise = prisma.playlist.findFirst({
+        where: { id: playlistId, userId },
+      });
+
+      const existingVideoPromise = prisma.video.findFirst({
+        where: { id: videoId },
+      });
+      const existingPlaylistVideoPromise = prisma.playlistVideo.findUnique({
+        where: { playlistId_videoId: { playlistId, videoId } },
+      });
+
+      const [existingPlaylist, existingVideo, existingPlaylistVideo] = await Promise.all([
+        existingPlaylistPromise,
+        existingVideoPromise,
+        existingPlaylistVideoPromise,
+      ]);
+      if (!existingPlaylist || !existingVideo) throw new TRPCError({ code: 'NOT_FOUND' });
+      if (existingPlaylistVideo) throw new TRPCError({ code: 'CONFLICT' });
+
+      const createdPlaylistvideo = await prisma.playlistVideo.create({
+        data: { playlistId, videoId },
+        include: { playlist: { select: { name: true } } },
+      });
+
+      return createdPlaylistvideo;
+    }),
+  getManyForVideo: protectedProcedure
+    .input(
+      z.object({
+        videoId: z.string(),
+        cursor: z
+          .object({
+            id: z.string(),
+            updatedAt: z.date(),
+          })
+          .nullish(),
+        limit: z.number().min(1).max(100),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, cursor, videoId } = input;
+      const { id: userId } = ctx.user;
+
+      const data = await prisma.playlist.findMany({
+        where: { userId },
+        include: {
+          playListVideos: {
+            select: { videoId: true },
+          },
+          user: true,
+        },
+        orderBy: { updatedAt: 'desc' },
+        take: limit + 1,
+        ...(cursor
+          ? {
+              cursor: { updatedAt: cursor.updatedAt, id: cursor.id },
+              skip: 1,
+            }
+          : {}),
+      });
+
+      const hasMore = data.length > limit;
+      //remove last item if there is more data
+      const items = hasMore ? data.slice(0, -1) : data;
+      // set the next cursor to the last item if there is more data
+      const lastItem = items[items.length - 1];
+      const nextCursor = hasMore
+        ? {
+            id: lastItem.id,
+            updatedAt: lastItem.updatedAt,
+          }
+        : null;
+
+      const itemsWithContains = items.map((item) => {
+        return item.playListVideos.some((video) => video.videoId === videoId)
+          ? { ...item, containsVideo: true }
+          : { ...item, containsVideo: false };
+      });
+
+      return {
+        items: itemsWithContains,
+        nextCursor,
+      };
+    }),
   getMany: protectedProcedure
     .input(
       z.object({
@@ -21,8 +153,17 @@ export const playlistsRouter = createTRPCRouter({
       const { id: userId } = ctx.user;
 
       const data = await prisma.playlist.findMany({
-        where: { userId },
-        include: { playListVideos: true, user: true, _count: { select: { playListVideos: true } } },
+        where: { 
+          userId,
+          playListVideos: {
+            some: {}
+          }
+        },
+        include: {
+          playListVideos: { include: { video: { select: { thumbnailUrl: true } } } },
+          user: true,
+          _count: { select: { playListVideos: true } },
+        },
         orderBy: { updatedAt: 'desc' },
         take: limit + 1,
         ...(cursor
