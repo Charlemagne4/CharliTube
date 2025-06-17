@@ -1,9 +1,86 @@
-import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
+import { baseProcedure, createTRPCRouter, protectedProcedure } from '@/trpc/init';
 import { prisma } from '../../../../prisma/prisma';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 
 export const playlistsRouter = createTRPCRouter({
+  remove: protectedProcedure
+    .input(z.object({ playlistId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { playlistId } = input;
+      const { id: userId } = ctx.user;
+
+      const deletedPlaylist = await prisma.playlist.delete({ where: { id: playlistId, userId } });
+
+      if (!deletedPlaylist) throw new TRPCError({ code: 'NOT_FOUND' });
+
+      return deletedPlaylist;
+    }),
+  getOne: baseProcedure.input(z.object({ playlistId: z.string() })).query(async ({ input }) => {
+    const { playlistId } = input;
+
+    const existingPlaylist = await prisma.playlist.findUnique({ where: { id: playlistId } });
+
+    if (!existingPlaylist) throw new TRPCError({ code: 'NOT_FOUND' });
+
+    return existingPlaylist;
+  }),
+  getVideos: baseProcedure
+    .input(
+      z.object({
+        playlistId: z.string(),
+        cursor: z
+          .object({
+            id: z.string(),
+            updatedAt: z.date(),
+          })
+          .nullish(),
+        limit: z.number().min(1).max(100),
+      }),
+    )
+    .query(async ({ input }) => {
+      const { limit, cursor, playlistId } = input;
+
+      const data = await prisma.video.findMany({
+        where: {
+          PlaylistVideo: { some: { playlistId } },
+        },
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        include: {
+          user: true,
+          category: true,
+          _count: {
+            select: {
+              VideoViews: true,
+              VideoReaction: { where: { reactionType: 'like' } },
+            },
+          },
+        },
+        take: limit + 1,
+        ...(cursor
+          ? {
+              cursor: { updatedAt: cursor.updatedAt, id: cursor.id },
+              skip: 1,
+            }
+          : {}),
+      });
+      const hasMore = data.length > limit;
+      //remove last item if there is more data
+      const items = hasMore ? data.slice(0, -1) : data;
+      // set the next cursor to the last item if there is more data
+      const lastItem = items[items.length - 1];
+      const nextCursor = hasMore
+        ? {
+            id: lastItem.id,
+            updatedAt: lastItem.updatedAt,
+          }
+        : null;
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
   removeVideo: protectedProcedure
     .input(
       z.object({
@@ -36,7 +113,7 @@ export const playlistsRouter = createTRPCRouter({
 
       const deletedPlaylistvideo = await prisma.playlistVideo.delete({
         where: { playlistId_videoId: { playlistId, videoId } },
-        include: { playlist: { select: { name: true } } },
+        include: { playlist: { select: { name: true, id: true } } },
       });
 
       return deletedPlaylistvideo;
@@ -153,11 +230,11 @@ export const playlistsRouter = createTRPCRouter({
       const { id: userId } = ctx.user;
 
       const data = await prisma.playlist.findMany({
-        where: { 
+        where: {
           userId,
           playListVideos: {
-            some: {}
-          }
+            some: {},
+          },
         },
         include: {
           playListVideos: { include: { video: { select: { thumbnailUrl: true } } } },

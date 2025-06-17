@@ -111,14 +111,18 @@ export async function POST(request: Request) {
           const tempThumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`;
           const uploadedThumbnail = await utApi.uploadFilesFromUrl(tempThumbnailUrl);
           thumbnailKey = uploadedThumbnail?.data?.key;
-          thumbnailUrl = uploadedThumbnail?.data?.ufsUrl;
+          thumbnailUrl = tempThumbnailUrl;
+          //TODO: uploadthing not working properly for now
+          // thumbnailUrl = uploadedThumbnail?.data?.ufsUrl;
           console.log('readying Video', tempThumbnailUrl);
         }
         if (!previewUrl) {
           const tempPreviewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
           const uploadedPreview = await utApi.uploadFilesFromUrl(tempPreviewUrl);
           previewKey = uploadedPreview?.data?.key;
-          previewUrl = uploadedPreview?.data?.ufsUrl;
+          previewUrl = tempPreviewUrl;
+          //TODO: uploadthing not working properly for now
+          // previewUrl = uploadedPreview?.data?.ufsUrl;
           console.log('readying Video', previewUrl);
         }
 

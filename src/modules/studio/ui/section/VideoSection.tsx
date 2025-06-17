@@ -7,7 +7,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
 } from '@/components/ui/table';
 import VideoThumbnail from '@/modules/videos/ui/components/VideoThumbnail';
 import { snakeCaseToTitle } from '@/lib/utils';
@@ -89,7 +89,7 @@ function VideoSectionSkeleton() {
 function VideoSectionSuspense() {
   const [videos, query] = trpc.studio.getMany.useSuspenseInfiniteQuery(
     { limit: DEFAULT_LIMIT },
-    { getNextPageParam: (lastPage) => lastPage.nextCursor }
+    { getNextPageParam: (lastPage) => lastPage.nextCursor },
   );
 
   return (
@@ -122,7 +122,7 @@ function VideoSectionSuspense() {
                           duration={video.duration}
                         />
                       </div>
-                      <div className="flex flex-col gap-y-1 overflow-hidden">
+                      <div className="flex max-w-md flex-col gap-y-1 overflow-hidden">
                         <span className="line-clamp-1 text-sm">{video.title}</span>
                         <span className="text-muted-foreground line-clamp-1 text-xs">
                           {video.description || 'no description'}
@@ -144,9 +144,11 @@ function VideoSectionSuspense() {
                     <div className="flex items-center">{snakeCaseToTitle(video.muxStatus)}</div>
                   </TableCell>
                   <TableCell>{format(new Date(video.createdAt), 'dd MMM yyyy')}</TableCell>
-                  <TableCell className="text-right text-sm">Views</TableCell>
-                  <TableCell className="text-right text-sm">Comments</TableCell>
-                  <TableCell className="pr-6 text-right text-sm">Likes</TableCell>
+                  <TableCell className="text-right text-sm">{video._count.VideoViews}</TableCell>
+                  <TableCell className="text-right text-sm">{video._count.VideoComment}</TableCell>
+                  <TableCell className="pr-6 text-right text-sm">
+                    {video._count.VideoReaction}
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>

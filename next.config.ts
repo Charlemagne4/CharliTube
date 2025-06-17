@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'i.redd.it',
       },
+      {
+        protocol: 'https',
+        hostname: 'image.mux.com',
+      },
       // i.redd.it
     ],
   },

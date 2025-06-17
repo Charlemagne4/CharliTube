@@ -13,7 +13,7 @@ export const studioRouter = createTRPCRouter({
     if (!video) {
       throw new TRPCError({
         code: 'NOT_FOUND',
-        message: "Video not found or you don't have access to it."
+        message: "Video not found or you don't have access to it.",
       });
     }
     return video;
@@ -24,11 +24,11 @@ export const studioRouter = createTRPCRouter({
         cursor: z
           .object({
             id: z.string(),
-            updatedAt: z.date()
+            updatedAt: z.date(),
           })
           .nullish(),
-        limit: z.number().min(1).max(100)
-      })
+        limit: z.number().min(1).max(100),
+      }),
     )
     .query(async ({ ctx, input }) => {
       const { limit, cursor } = input;
@@ -36,14 +36,23 @@ export const studioRouter = createTRPCRouter({
 
       const data = await prisma.video.findMany({
         where: { userId },
+        include: {
+          _count: {
+            select: {
+              VideoComment: true,
+              VideoViews: true,
+              VideoReaction: { where: { reactionType: 'like' } },
+            },
+          },
+        },
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
         take: limit + 1,
         ...(cursor
           ? {
               cursor: { updatedAt: cursor.updatedAt, id: cursor.id },
-              skip: 1
+              skip: 1,
             }
-          : {})
+          : {}),
         //skip: 1 this made the data to come with one item missing might cause problems later... or not
       });
       const hasMore = data.length > limit;
@@ -54,13 +63,13 @@ export const studioRouter = createTRPCRouter({
       const nextCursor = hasMore
         ? {
             id: lastItem.id,
-            updatedAt: lastItem.updatedAt
+            updatedAt: lastItem.updatedAt,
           }
         : null;
 
       return {
         items,
-        nextCursor
+        nextCursor,
       };
-    })
+    }),
 });

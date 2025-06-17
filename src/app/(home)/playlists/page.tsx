@@ -2,9 +2,10 @@ import { DEFAULT_LIMIT } from '@/constants';
 import PlaylistsView from '@/modules/playlists/views/PlaylistsView';
 import { HydrateClient, trpc } from '@/trpc/server';
 
-function page() {
+export const dynamic = 'force-dynamic';
 
-    void trpc.playlists.getMany.prefetchInfinite({limit: DEFAULT_LIMIT})
+function page() {
+  void trpc.playlists.getMany.prefetchInfinite({ limit: DEFAULT_LIMIT });
   return (
     <HydrateClient>
       <PlaylistsView />
