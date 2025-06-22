@@ -49,7 +49,7 @@ function SessionContent() {
     console.log('user email', data?.user.email);
     return (
       //add menu items for studio and User Profile
-      <DropdownMenu modal={false}>
+      <DropdownMenu modal={false} >
         <DropdownMenuTrigger
           className="text-md flex gap-3 overflow-hidden rounded-full border-none px-4 py-2 font-medium text-blue-800 shadow-none hover:text-blue-500 focus:outline-none"
           // aria-haspopup="true"
@@ -67,7 +67,7 @@ function SessionContent() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="">
           <DropdownMenuItem variant="default">
-            <Link href={'/'} className="flex items-center gap-3 text-lg">
+            <Link href={`/users/${data.user.id}`} className="flex items-center gap-3 text-lg">
               <UserIcon size={20} />
               Profile
             </Link>

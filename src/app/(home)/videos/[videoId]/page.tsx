@@ -25,7 +25,7 @@ async function page({ params }: pageProps) {
     await trpc.videos.getOne({ videoId });
   } catch (err) {
     // Catch TRPC 'NOT_FOUND' error and call notFound()
-    notFound()
+    notFound();
   }
   // void trpc.videos.getOne.prefetch({ videoId });
   void trpc.comments.getMany.prefetchInfinite({ videoId, limit: DEFAULT_LIMIT });

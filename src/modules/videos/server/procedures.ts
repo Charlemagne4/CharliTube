@@ -131,6 +131,7 @@ export const videosRouter = createTRPCRouter({
     .input(
       z.object({
         categoryId: z.string().nullish(),
+        userId: z.string().nullish(),
         cursor: z
           .object({
             id: z.string(),
@@ -141,11 +142,12 @@ export const videosRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input }) => {
-      const { limit, cursor, categoryId } = input;
+      const { limit, cursor, categoryId, userId } = input;
 
       const data = await prisma.video.findMany({
         where: {
           ...(categoryId ? { categoryId } : {}),
+          ...(userId ? { userId } : {}),
           visibility: 'public',
         },
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
