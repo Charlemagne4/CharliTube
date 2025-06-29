@@ -112,7 +112,7 @@ export async function POST(request: Request) {
           const uploadedThumbnail = await utApi.uploadFilesFromUrl(tempThumbnailUrl);
           thumbnailKey = uploadedThumbnail?.data?.key;
           thumbnailUrl = tempThumbnailUrl;
-          //TODO: uploadthing not working properly for now
+          //TODO: uploadthing not working properly for now (it works now revert later)
           // thumbnailUrl = uploadedThumbnail?.data?.ufsUrl;
           console.log('readying Video', tempThumbnailUrl);
         }
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
           const uploadedPreview = await utApi.uploadFilesFromUrl(tempPreviewUrl);
           previewKey = uploadedPreview?.data?.key;
           previewUrl = tempPreviewUrl;
-          //TODO: uploadthing not working properly for now
+          //TODO: uploadthing not working properly for now (it works now revert later)
           // previewUrl = uploadedPreview?.data?.ufsUrl;
           console.log('readying Video', previewUrl);
         }

@@ -50,7 +50,7 @@ function PersonalSection() {
               <SidebarMenuButton
                 tooltip={item.title}
                 asChild
-                isActive={item.url === pathname} // TODO: look at current pathname
+                isActive={item.url === pathname}
                 onClick={(e) => {
                   if (status !== 'authenticated' && item.auth) {
                     e.preventDefault();

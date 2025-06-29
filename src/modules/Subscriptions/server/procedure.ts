@@ -4,6 +4,58 @@ import { prisma } from '../../../../prisma/prisma';
 import { TRPCError } from '@trpc/server';
 
 export const subscriptionsRouter = createTRPCRouter({
+  getMany: protectedProcedure
+    .input(
+      z.object({
+        cursor: z
+          .object({
+            id: z.string(),
+            createdAt: z.date(),
+          })
+          .nullish(),
+        limit: z.number().min(1).max(100),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const { limit, cursor } = input;
+      const { id: userId } = ctx.user;
+
+      const data = await prisma.subscription.findMany({
+        where: {
+          viewerId: userId,
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: limit + 1,
+        ...(cursor
+          ? {
+              cursor: { createdAt: cursor.createdAt, id: cursor.id },
+              skip: 1,
+            }
+          : {}),
+        //include might not be needed
+        include: {
+          creator: { include: { _count: { select: { Subscribers: true } } } },
+          viewer: true,
+        },
+      });
+
+      const hasMore = data.length > limit;
+      //remove last item if there is more data
+      const items = hasMore ? data.slice(0, -1) : data;
+      // set the next cursor to the last item if there is more data
+      const lastItem = items[items.length - 1];
+      const nextCursor = hasMore
+        ? {
+            id: lastItem.id,
+            createdAt: lastItem.createdAt,
+          }
+        : null;
+
+      return {
+        items,
+        nextCursor,
+      };
+    }),
   getOne: baseProcedure
     .input(z.object({ userId: z.string().nullable() }))
     .query(async ({ ctx, input }) => {

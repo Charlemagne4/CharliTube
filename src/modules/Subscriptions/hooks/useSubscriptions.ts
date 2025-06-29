@@ -25,6 +25,7 @@ function useSubscriptions({ userId, fromVideoId }: useSubscriptionsProps) {
       utils.videos.getOne.invalidate({ videoId: fromVideoId });
       utils.videos.getManySubscribed.invalidate();
       utils.users.getOne.invalidate({ userId });
+      utils.subscriptions.getMany.invalidate();
 
       if (fromVideoId) {
         utils.videos.getOne.invalidate();
@@ -45,6 +46,7 @@ function useSubscriptions({ userId, fromVideoId }: useSubscriptionsProps) {
       utils.videos.getOne.invalidate({ videoId: fromVideoId });
       utils.videos.getManySubscribed.invalidate();
       utils.users.getOne.invalidate({ userId });
+      utils.subscriptions.getMany.invalidate();
 
       if (fromVideoId) {
         utils.videos.getOne.invalidate();
