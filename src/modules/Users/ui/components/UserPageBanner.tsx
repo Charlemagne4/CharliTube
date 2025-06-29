@@ -4,6 +4,8 @@ import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Edit2Icon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import BannerUploadModal from './BannerUploadModal';
+import { useState } from 'react';
 
 interface UserPageBannerProps {
   user: UserGetOneOutput;
@@ -14,11 +16,18 @@ export function UserPageBannerSkeleton() {
 }
 
 function UserPageBanner({ user }: UserPageBannerProps) {
+  const [bannerModalOpen, setBannerModalOpen] = useState(false);
   const { data: session } = useSession();
 
   return (
     <div className="group relative">
-      {/* TODO: add upload banner modal */}
+      {session && (
+        <BannerUploadModal
+          onOpenChange={setBannerModalOpen}
+          open={bannerModalOpen}
+          userId={session.user.id}
+        />
+      )}
       <div
         className={cn(
           'h-[15vh] max-h-[200px] w-full rounded-xl bg-gradient-to-r from-gray-100 to-gray-200 md:h-[25vh]',
@@ -30,6 +39,9 @@ function UserPageBanner({ user }: UserPageBannerProps) {
           <Button
             type="button"
             size={'icon'}
+            onClick={() => {
+              setBannerModalOpen(true);
+            }}
             className="absolute top-4 right-4 rounded-full bg-black/50 opacity-100 transition-opacity duration-300 group-hover:opacity-100 hover:bg-black/50 md:opacity-0"
           >
             <Edit2Icon className="text-secondary size-4" />
