@@ -2,7 +2,7 @@ import { DEFAULT_LIMIT } from '@/constants';
 import SearchView from '@/modules/search/ui/views/SearchView';
 import { HydrateClient, trpc } from '@/trpc/server';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'; // add this whenever we prefetch
 
 interface PageProps {
   searchParams: Promise<{ query: string | undefined; categoryId: string | undefined }>;

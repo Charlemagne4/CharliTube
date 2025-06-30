@@ -30,7 +30,7 @@ export const authOptions = {
     //   const existingUser = await prisma.user.findUnique({
     //     where: { email: user.email || undefined },
     //   });
-    //   console.log(existingUser);
+    //   logger.info(existingUser);
 
     //   if (existingUser && existingUser.image !== user.image) {
     //     await prisma.user.update({

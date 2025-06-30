@@ -2,7 +2,7 @@ import { DEFAULT_LIMIT } from '@/constants';
 import VideosView from '@/modules/playlists/views/VideosView';
 import { HydrateClient, trpc } from '@/trpc/server';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'; // add this whenever we prefetch
 
 interface pageProps {
   params: Promise<{ playlistId: string }>;

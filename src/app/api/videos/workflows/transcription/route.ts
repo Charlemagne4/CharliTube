@@ -4,6 +4,7 @@ import { env } from '@/data/server';
 import { prisma } from '../../../../../../prisma/prisma';
 import { promptCohereAI } from '@/lib/cohereAI';
 import { DESCRIPTION_SYSTEM_PROMPT } from '../../../../../../public/system_prompts';
+import { logger } from '@/utils/pino';
 
 interface InputType {
   userId: string;
@@ -12,14 +13,14 @@ interface InputType {
 
 export const { POST } = serve(
   async (context) => {
-    console.log('Context inside route transcription.');
+    logger.info('Context inside route transcription.');
     const input = context.requestPayload as InputType;
     const { userId, videoId } = input;
 
     //commented this out because the next step will call the db either way,
     //  but if not can be used as data already fetch.
     const existingVideo = await context.run('get-video', async () => {
-      console.log('>>>get-video ran once');
+      logger.info('>>>get-video ran once');
       const data = await prisma.video.findFirst({ where: { id: videoId, userId } });
       if (!data) throw new Error('Not found');
       return data;
@@ -34,7 +35,7 @@ export const { POST } = serve(
     });
 
     await context.run('update-video', async () => {
-      console.log('>>>update-video ran once');
+      logger.info('>>>update-video ran once');
 
       if (!existingVideo?.muxTrackId) return 'no transcription found';
 

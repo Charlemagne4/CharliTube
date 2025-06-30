@@ -1,5 +1,6 @@
 import { UTApi } from 'uploadthing/server';
 import { prisma } from '../../prisma/prisma';
+import { logger } from '@/utils/pino';
 export async function deleteUTFile(
   videoId: string,
   userId: string,
@@ -18,9 +19,9 @@ export async function deleteUTFile(
         data: { thumbnailKey: null },
       })
       .catch((err) => {
-        console.error('Failed to update DB after UT deletion:', err);
+        logger.error('Failed to update DB after UT deletion:', err);
       });
   } catch (err) {
-    console.error('Failed to delete from UploadThing:', err);
+    logger.error('Failed to delete from UploadThing:', err);
   }
 }

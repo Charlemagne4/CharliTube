@@ -1,4 +1,5 @@
 import { env } from '@/data/server';
+import { logger } from '@/utils/pino';
 import { CohereClientV2 } from 'cohere-ai';
 
 const cohere = new CohereClientV2({ token: env.CO_API_KEY });
@@ -17,6 +18,6 @@ export const promptCohereAI = async (prompt: string, additionalContent: string |
       : { messages: [{ role: 'user', content: prompt }] }),
   });
   const AIresponse = response?.message?.content?.[0].text;
-  console.log(AIresponse);
+  logger.debug(AIresponse);
   return AIresponse;
 };

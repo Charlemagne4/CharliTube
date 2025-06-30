@@ -2,6 +2,7 @@
 
 import ResponsiveModal from '@/components/ResponsiveModal';
 import { trpc } from '@/trpc/client';
+import { logger } from '@/utils/pino';
 import { UploadDropzone } from '@/utils/uploadthing';
 
 interface BannerUploadModalProps {
@@ -24,7 +25,7 @@ function BannerUploadModal({ onOpenChange, open, userId }: BannerUploadModalProp
       <UploadDropzone
         endpoint="bannerUploader"
         onUploadBegin={() => {
-          console.log('Upload started');
+          logger.info('Upload started');
         }}
         onClientUploadComplete={onClientUploadComplete}
       />

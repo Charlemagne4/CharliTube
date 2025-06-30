@@ -1,5 +1,6 @@
 // scripts/seedCategories.ts
 
+import { logger } from '@/utils/pino.js';
 import { PrismaClient } from '../../generated/prisma/index.js';
 
 const prisma = new PrismaClient();
@@ -18,7 +19,7 @@ const categoryNames = [
   'Pets and animals',
   'Science and technology',
   'Sports',
-  'Travel and events'
+  'Travel and events',
 ];
 
 async function main() {
@@ -28,16 +29,16 @@ async function main() {
       update: {},
       create: {
         name,
-        description: `${name} related videos`
-      }
+        description: `${name} related videos`,
+      },
     });
   }
-  console.log('✅ Categories seeded.');
+  logger.info('✅ Categories seeded.');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    logger.error(e);
     process.exit(1);
   })
   .finally(async () => {

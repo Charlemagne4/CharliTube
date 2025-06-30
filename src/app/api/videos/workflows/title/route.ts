@@ -4,6 +4,7 @@ import { env } from '@/data/server';
 import { prisma } from '../../../../../../prisma/prisma';
 import { promptCohereAI } from '@/lib/cohereAI';
 import { titlePrompt } from '../../../../../../public/system_prompts';
+import { logger } from '@/utils/pino';
 
 interface InputType {
   userId: string;
@@ -12,19 +13,19 @@ interface InputType {
 
 export const { POST } = serve(
   async (context) => {
-    console.log('Context inside route title.');
+    logger.info('Context inside route title.');
     const input = context.requestPayload as InputType;
     const { userId, videoId } = input;
 
     const existingVideo = await context.run('get-video', async () => {
-      console.log('>>>get-video ran once');
+      logger.info('>>>get-video ran once');
       const data = await prisma.video.findFirst({ where: { id: videoId, userId } });
       if (!data) throw new Error('Not found');
       return data;
     });
 
     await context.run('update-video', async () => {
-      console.log('>>>update-video ran once');
+      logger.info('>>>update-video ran once');
 
       if (!existingVideo?.description) return 'no title found';
 

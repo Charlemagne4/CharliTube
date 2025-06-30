@@ -8,6 +8,7 @@ import { deleteUTFile } from '@/lib/UTapi';
 import { UTApi } from 'uploadthing/server';
 import { workflowUpstashClient } from '@/lib/qstashWorkflow';
 import { env } from '@/data/server';
+import { logger } from '@/utils/pino';
 
 export const videosRouter = createTRPCRouter({
   getManySubscribed: protectedProcedure
@@ -30,7 +31,7 @@ export const videosRouter = createTRPCRouter({
       });
 
       const subscribedCreators = ViewerSubscriptions.map((subscription) => subscription.creatorId);
-      console.log('subscribedCreators: ', subscribedCreators);
+      logger.info('subscribedCreators: ', subscribedCreators);
 
       const data = await prisma.video.findMany({
         where: {
@@ -54,7 +55,7 @@ export const videosRouter = createTRPCRouter({
           },
         },
       });
-      console.log('videos of subscriber: ', data);
+      logger.info('videos of subscriber: ', data);
 
       const hasMore = data.length > limit;
       //remove last item if there is more data
@@ -352,7 +353,7 @@ export const videosRouter = createTRPCRouter({
           'Content-Type': 'application/json',
         },
       });
-      console.log('generateTitle hit');
+      logger.info('generateTitle hit');
       return workflowRunId;
     }),
   generateDescriptionFromTitle: protectedProcedure
@@ -367,7 +368,7 @@ export const videosRouter = createTRPCRouter({
           'Content-Type': 'application/json',
         },
       });
-      console.log('generateDescription hit');
+      logger.info('generateDescription hit');
       return workflowRunId;
     }),
   generateDescriptionFromTranscriptionTrack: protectedProcedure
@@ -382,7 +383,7 @@ export const videosRouter = createTRPCRouter({
           'Content-Type': 'application/json',
         },
       });
-      console.log('generateDescription hit');
+      logger.info('generateDescription hit');
       return workflowRunId;
     }),
 });

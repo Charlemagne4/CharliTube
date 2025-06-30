@@ -2,6 +2,7 @@
 
 import ResponsiveModal from '@/components/ResponsiveModal';
 import { trpc } from '@/trpc/client';
+import { logger } from '@/utils/pino';
 import { UploadDropzone } from '@/utils/uploadthing';
 
 interface ThumbnailUploadModalProps {
@@ -25,7 +26,7 @@ function ThumbnailUploadModal({ onOpenChange, open, videoId }: ThumbnailUploadMo
         input={{ videoId }}
         endpoint="thumbnailUploader"
         onUploadBegin={() => {
-          console.log('Upload started');
+          logger.info('Upload started');
         }}
         onClientUploadComplete={onClientUploadComplete}
       />

@@ -7,10 +7,11 @@ import superjson from 'superjson';
 
 import { prisma } from '../../prisma/prisma';
 import { ratelimit } from '@/lib/ratelimit';
+import { logger } from '@/utils/pino';
 
 export async function createTRPCContext() {
   const session = await getServerSession(authOptions); // Using getServerSession here
-  // console.log('>>>>-session:', session);
+  // logger.info('>>>>-session:', session);
   return {
     session,
   };
@@ -32,7 +33,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   const result = await next();
 
   const end = Date.now();
-  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+  logger.info(`[TRPC] ${path} took ${end - start}ms to execute`);
 
   return result;
 });
@@ -49,7 +50,7 @@ export const protectedProcedure = baseProcedure.use(timingMiddleware).use(async 
   }
 
   const user = await prisma.user.findFirst({ where: { id: ctx.session?.user.id } });
-  // console.log('current User from trpc middleware:', currentUser);
+  // logger.info('current User from trpc middleware:', currentUser);
   if (!user) {
     throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Must be logged In' });
   }

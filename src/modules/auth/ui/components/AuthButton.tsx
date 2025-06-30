@@ -14,6 +14,7 @@ import {
 import Link from 'next/link';
 
 import { Suspense } from 'react';
+import { logger } from '@/utils/pino';
 
 export function AuthButton() {
   return (
@@ -43,10 +44,10 @@ function SessionContent() {
   }
 
   if (status === 'authenticated') {
-    console.log('user Role', data.user?.role);
-    console.log('user ID', data?.user.id);
+    logger.debug('user Role', data.user?.role);
+    logger.debug('user ID', data?.user.id);
 
-    console.log('user email', data?.user.email);
+    logger.debug('user email', data?.user.email);
     return (
       //add menu items for studio and User Profile
       <DropdownMenu modal={false}>

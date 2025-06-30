@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const secret = process.env.NEXTAUTH_SECRET;
 
-const protectedRoutes = ['/protected', '/studio', '/settings'];
+const protectedRoutes = ['/protected', '/studio', '/subscriptions', '/feed/subscriptions'];
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
@@ -42,6 +42,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/feed/subscriptions/:path*',
     '/protected/:path*',
     '/studio/:path*',
     '/settings/:path*',

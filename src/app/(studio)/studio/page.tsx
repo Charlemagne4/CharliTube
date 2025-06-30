@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'; // add this whenever we prefetch
 
 import { DEFAULT_LIMIT } from '@/constants';
 import StudioView from '@/modules/studio/views/StudioView';

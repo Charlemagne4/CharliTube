@@ -1,10 +1,11 @@
 import { DEFAULT_LIMIT } from '@/constants';
 import VideoView from '@/modules/videos/views/VideoView';
 import { HydrateClient, trpc } from '@/trpc/server';
+import { logger } from '@/utils/pino';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'; // add this whenever we prefetch
 
 interface pageProps {
   params: Promise<{ videoId: string }>;
@@ -14,7 +15,7 @@ async function page({ params }: pageProps) {
   const cookieStore = await cookies();
   const anonId = cookieStore.get('anonId')?.value ?? null;
   if (!anonId) {
-    console.error('ANON IDENTIFCATION IS NULL');
+    logger.error('ANON IDENTIFCATION IS NULL');
   }
   const { videoId } = await params;
 
@@ -22,7 +23,7 @@ async function page({ params }: pageProps) {
   try {
     await trpc.videos.getOne({ videoId });
   } catch (err) {
-    console.warn(err);
+    logger.error(err);
     // Catch TRPC 'NOT_FOUND' error and call notFound()
     notFound();
   }

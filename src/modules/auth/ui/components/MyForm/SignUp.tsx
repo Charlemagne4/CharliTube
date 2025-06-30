@@ -10,6 +10,7 @@ import axios from 'axios';
 import { redirect, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { signIn, useSession } from 'next-auth/react';
+import { logger } from '@/utils/pino';
 
 export function SignUp() {
   const router = useRouter();
@@ -25,8 +26,8 @@ export function SignUp() {
     defaultValues: {
       name: '', // Ensure 'n
       email: '',
-      password: ''
-    }
+      password: '',
+    },
   });
 
   // 2. Define a submit handler.
@@ -36,16 +37,16 @@ export function SignUp() {
         method: 'POST',
         data: values,
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
-      console.log(values);
+      logger.info(values);
 
       if (res.status === 200) {
         router.push('/'); // ✅ redirect after login
       }
     } catch (error) {
-      if (error instanceof Error) console.error(error.message);
+      if (error instanceof Error) logger.error(error.message);
     }
 
     // const error: string = await signUp(values);

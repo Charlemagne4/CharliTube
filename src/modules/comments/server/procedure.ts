@@ -3,6 +3,7 @@ import { prisma } from '../../../../prisma/prisma';
 import { VideoCommentCreateSchema } from '../../../../prisma/zod-prisma';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import { logger } from '@/utils/pino';
 
 export const videoCommentsRouter = createTRPCRouter({
   remove: protectedProcedure
@@ -115,7 +116,7 @@ export const videoCommentsRouter = createTRPCRouter({
         replyMap[parentId].replyCount++;
       });
 
-      console.log(replyMap);
+      logger.info(replyMap);
       // 3. Map counts to each comment
       const reactionMap: Record<string, { like: number; dislike: number }> = {};
       reactions.forEach(({ commentId, reactionType, _count }) => {

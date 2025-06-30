@@ -10,6 +10,7 @@ import {
 import { headers } from 'next/headers';
 import { prisma } from '../../../../../prisma/prisma';
 import { UTApi } from 'uploadthing/server';
+import { logger } from '@/utils/pino';
 const SIGNING_SECRET = env.MUX_WEBHOOK_SECRET!;
 
 type WebhookEvent =
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   }
 
   const payLoad = await request.json();
-  console.log('WEBHOOK HIT BY: ', payLoad.type as WebhookEvent['type']);
+  logger.info('WEBHOOK HIT BY: ', payLoad.type as WebhookEvent['type']);
   const body = JSON.stringify(payLoad);
 
   mux.webhooks.verifySignature(
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
   switch (payLoad.type as WebhookEvent['type']) {
     case 'video.asset.created': {
       const data = payLoad.data as VideoAssetCreatedWebhookEvent['data'];
-      console.log('creating Video');
+      logger.info('creating Video');
 
       if (!data.upload_id) {
         return new Response('(create) Upload ID not found', { status: 400 });
@@ -62,10 +63,10 @@ export async function POST(request: Request) {
           },
         });
 
-        console.log('Video updated:', updatedVideo.id);
+        logger.info('Video updated:', updatedVideo.id);
         return new Response('Video Created', { status: 200 });
       } catch (error) {
-        console.error('Failed to update video:', error);
+        logger.error('Failed to update video:', error);
         return new Response('Video not found or database error', { status: 404 });
       }
 
@@ -114,7 +115,7 @@ export async function POST(request: Request) {
           thumbnailUrl = tempThumbnailUrl;
           //TODO: uploadthing not working properly for now (it works now revert later)
           // thumbnailUrl = uploadedThumbnail?.data?.ufsUrl;
-          console.log('readying Video', tempThumbnailUrl);
+          logger.info('readying Video', tempThumbnailUrl);
         }
         if (!previewUrl) {
           const tempPreviewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
           previewUrl = tempPreviewUrl;
           //TODO: uploadthing not working properly for now (it works now revert later)
           // previewUrl = uploadedPreview?.data?.ufsUrl;
-          console.log('readying Video', previewUrl);
+          logger.info('readying Video', previewUrl);
         }
 
         const duration = data.duration ? Math.round(data.duration * 1000) : 0;
@@ -146,10 +147,10 @@ export async function POST(request: Request) {
           },
         });
 
-        console.log('Video updated:', updatedVideo.id);
+        logger.info('Video updated:', updatedVideo.id);
         return new Response('Video updated', { status: 200 });
       } catch (error) {
-        console.error('Failed to update video:', error);
+        logger.error('Failed to update video:', error);
         return new Response('Video not found or database error', { status: 404 });
       }
       break;
@@ -167,17 +168,17 @@ export async function POST(request: Request) {
           where: { muxUploadId: data.upload_id },
         });
 
-        console.log('Video Error:', updatedVideo.id);
+        logger.info('Video Error:', updatedVideo.id);
         return new Response('error handled', { status: 200 });
       } catch (error) {
-        console.error('Failed to update error in video:', error);
+        logger.error('Failed to update error in video:', error);
         return new Response('database error', { status: 404 });
       }
       break;
     }
     case 'video.asset.deleted': {
       const data = payLoad.data as VideoAssetDeletedWebhookEvent['data'];
-      console.log('deleting Video');
+      logger.info('deleting Video');
       if (!data.upload_id) {
         return new Response('(ready) Upload ID not found', { status: 400 });
       }
@@ -192,10 +193,10 @@ export async function POST(request: Request) {
         if (deletedVideo.thumbnailKey) cleanUpAfterDeletion.push(deletedVideo.thumbnailKey);
         void utApi.deleteFiles(cleanUpAfterDeletion);
 
-        console.log('deleted Video:', deletedVideo.id);
+        logger.info('deleted Video:', deletedVideo.id);
         return new Response('Asset deleted', { status: 200 });
       } catch (error) {
-        console.error('Failed to delete video:', error);
+        logger.error('Failed to delete video:', error);
         return new Response('Video not found or database error', { status: 404 });
       }
       break;
@@ -223,10 +224,10 @@ export async function POST(request: Request) {
         if (updatedResult.count > 1) {
           throw new Error('Mux Duplicated assetId detected');
         }
-        console.log('Video track Ready');
+        logger.info('Video track Ready');
         return new Response('track status handled', { status: 200 });
       } catch (error) {
-        console.error('Failed to update video:', error);
+        logger.error('Failed to update video:', error);
         return new Response('Video not found or database error', { status: 404 });
       }
       break;

@@ -11,6 +11,7 @@ import axios from 'axios';
 import { redirect, useRouter, useSearchParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/utils/pino';
 
 // interface Props {
 //   searchParams: Record<string, string | string[] | undefined>;
@@ -38,7 +39,7 @@ export function SignIn() {
       } else {
         setError(`Sign in error: ${authError}`);
       }
-      console.log(authError);
+      logger.info(authError);
     }
   }, [authError]);
 
@@ -46,14 +47,14 @@ export function SignIn() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
-      password: ''
-    }
+      password: '',
+    },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const res = await axios.post('/api/login', values, {
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
 
       if (res.status === 200) {
@@ -62,7 +63,7 @@ export function SignIn() {
         setError(res.data.message || 'Something went wrong');
       }
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       if (err instanceof Error) setError(err.message || 'Login failed');
     }
   }
@@ -101,7 +102,7 @@ export function SignIn() {
       </div>
     );
   }
-  // console.log(session?.user?.role);
+  // logger.info(session?.user?.role);
 }
 
 export default SignIn;

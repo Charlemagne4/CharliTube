@@ -68,7 +68,7 @@ export const subscriptionsRouter = createTRPCRouter({
       const { id: viewerId } = session.user;
       const { userId: creatorId } = input;
 
-      // console.log(`viewerId: ${viewerId}`, `creatorId: ${creatorId} `);
+      // logger.info(`viewerId: ${viewerId}`, `creatorId: ${creatorId} `);
 
       if (!viewerId || !creatorId) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Must be logged in' });
@@ -92,7 +92,7 @@ export const subscriptionsRouter = createTRPCRouter({
       if (!viewerId || !creatorId) {
         throw new TRPCError({ code: 'BAD_REQUEST', message: 'Must be logged in' });
       }
-      // console.log(`viewerId: ${viewerId}`, `creatorId: ${creatorId} `);
+      // logger.info(`viewerId: ${viewerId}`, `creatorId: ${creatorId} `);
       const subscription = await prisma.subscription.create({
         data: { viewerId, creatorId },
       });
