@@ -398,6 +398,7 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                       <p className="text-muted-foreground text-xs">Video Link</p>
                       <div className="flex items-center gap-x-2">
                         <Link
+                          prefetch
                           href={`/videos/${video.id}`}
                           className="overflow-hidden text-sm break-all text-ellipsis text-blue-500"
                         >

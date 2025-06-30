@@ -67,7 +67,7 @@ function SubscriptionsSectionSuspense() {
         {subscriptions.pages
           .flatMap((page) => page.items)
           .map((subscribtion) => (
-            <Link href={`/users/${subscribtion.creatorId}`} key={subscribtion.id}>
+            <Link prefetch href={`/users/${subscribtion.creatorId}`} key={subscribtion.id}>
               <SubscribtionItem
                 name={subscribtion.creator.name || 'NULL'}
                 imageUrl={subscribtion.creator.image || THUMBNAIL_FALLBACK}

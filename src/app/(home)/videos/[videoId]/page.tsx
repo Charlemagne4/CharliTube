@@ -1,8 +1,6 @@
 import { DEFAULT_LIMIT } from '@/constants';
 import VideoView from '@/modules/videos/views/VideoView';
 import { HydrateClient, trpc } from '@/trpc/server';
-import { TRPCClientError } from '@trpc/client';
-import { TRPCError } from '@trpc/server';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 
@@ -24,6 +22,7 @@ async function page({ params }: pageProps) {
   try {
     await trpc.videos.getOne({ videoId });
   } catch (err) {
+    console.warn(err);
     // Catch TRPC 'NOT_FOUND' error and call notFound()
     notFound();
   }

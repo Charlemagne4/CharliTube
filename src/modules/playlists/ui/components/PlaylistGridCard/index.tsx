@@ -19,7 +19,7 @@ export function PlaylistGridCardSkeleton() {
 
 function PlaylistGridCard({ data }: PlaylistGridCardProps) {
   return (
-    <Link href={`/playlists/${data.id}`}>
+    <Link prefetch href={`/playlists/${data.id}`}>
       <div className="group flex w-full flex-col gap-2">
         <PlaylistThumbnail
           imageUrl={data.playListVideos?.[0]?.video?.thumbnailUrl || THUMBNAIL_FALLBACK}

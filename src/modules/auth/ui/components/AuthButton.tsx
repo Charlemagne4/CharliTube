@@ -30,7 +30,7 @@ function SessionContent() {
   //TODO: make the signin button redirect to initial Page
   if (status === 'unauthenticated') {
     return (
-      <Link href={'/signin'}>
+      <Link prefetch href={'/signin'}>
         <Button
           variant={'outline'}
           className="rounded-full border-blue-500/20 px-4 py-2 text-sm font-medium text-blue-600 shadow-none hover:text-blue-500 [&_svg]:size-5"
@@ -49,7 +49,7 @@ function SessionContent() {
     console.log('user email', data?.user.email);
     return (
       //add menu items for studio and User Profile
-      <DropdownMenu modal={false} >
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           className="text-md flex gap-3 overflow-hidden rounded-full border-none px-4 py-2 font-medium text-blue-800 shadow-none hover:text-blue-500 focus:outline-none"
           // aria-haspopup="true"
@@ -67,13 +67,17 @@ function SessionContent() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="">
           <DropdownMenuItem variant="default">
-            <Link href={`/users/${data.user.id}`} className="flex items-center gap-3 text-lg">
+            <Link
+              prefetch
+              href={`/users/${data.user.id}`}
+              className="flex items-center gap-3 text-lg"
+            >
               <UserIcon size={20} />
               Profile
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem variant="default">
-            <Link href={'/studio'} className="flex items-center gap-3 text-lg">
+            <Link prefetch href={'/studio'} className="flex items-center gap-3 text-lg">
               <ClapperboardIcon size={20} />
               Studio
             </Link>

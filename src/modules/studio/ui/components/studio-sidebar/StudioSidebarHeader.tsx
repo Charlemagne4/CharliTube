@@ -2,7 +2,7 @@ import {
   SidebarHeader,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import UserAvatar from '@/components/UserAvatar';
@@ -20,7 +20,7 @@ function StudioSidebarHeader() {
     return (
       <SidebarMenuItem>
         <SidebarMenuButton tooltip={'You Channel'} asChild>
-          <Link href={'/users/current'}>
+          <Link prefetch href={'/users/current'}>
             <UserAvatar
               size={'sm'}
               imageUrl={user?.image as string}
@@ -47,7 +47,7 @@ function StudioSidebarHeader() {
 
   return (
     <SidebarHeader className="flex items-center justify-center pb-4">
-      <Link href={'/users/current'}>
+      <Link prefetch href={'/users/current'}>
         {user && (
           <UserAvatar
             imageUrl={user.image as string}

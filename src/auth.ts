@@ -1,5 +1,5 @@
 // app/api/auth/[...nextauth]/route.js
-import { Session, User, Account, Profile } from 'next-auth';
+import { Session, User } from 'next-auth';
 import GitHubProvider from 'next-auth/providers/github';
 import DiscordProvider from 'next-auth/providers/discord';
 

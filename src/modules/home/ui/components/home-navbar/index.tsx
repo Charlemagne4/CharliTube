@@ -11,7 +11,7 @@ export default function HomeNavbar() {
         {/* Menu and logo */}
         <div className="flex shrink-0 items-center">
           <SidebarTrigger />
-          <Link href={'/'}>
+          <Link prefetch href={'/'} className="hidden md:block">
             <div className="flex items-center gap-1 p-4">
               <Image alt="Logo" src={'/logo.svg'} width={32} height={32} />
               <p className="text-xl font-semibold tracking-tight">Charlitube</p>

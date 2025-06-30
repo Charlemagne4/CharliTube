@@ -77,7 +77,7 @@ function CommentItem({ comment, variant = 'comment' }: CommentItemProps) {
   return (
     <div>
       <div className="flex gap-4">
-        <Link href={`/users/${comment.userId}`}>
+        <Link prefetch href={`/users/${comment.userId}`}>
           <UserAvatar
             imageUrl={user.image}
             name={user.name}
@@ -85,7 +85,7 @@ function CommentItem({ comment, variant = 'comment' }: CommentItemProps) {
           />
         </Link>
         <div className="min-w-0 flex-1">
-          <Link href={`/users/${comment.userId}`}>
+          <Link prefetch href={`/users/${comment.userId}`}>
             <div className="mb-0.5 flex items-center gap-2">
               <span className="pb-0.5 text-sm font-medium">{user.name}</span>
               <span className="text-muted-foreground text-xs">

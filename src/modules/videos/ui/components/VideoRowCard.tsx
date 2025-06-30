@@ -82,14 +82,14 @@ function VideoRowCard({ data, onRemove, size = 'default' }: videoRowCardProps) {
 
   return (
     <div className={videoRowCardVariants({ size })}>
-      <Link href={`/videos/${data.id}`} className={thumbnailVariants({ size })}>
+      <Link prefetch href={`/videos/${data.id}`} className={thumbnailVariants({ size })}>
         <VideoThumbnail imageUrl={data.thumbnailUrl} {...data} />
       </Link>
       {/* info */}
       <div className="min-w-0 flex-1">
         <div className="flex justify-between gap-x-2">
           <div className="min-w-0 flex-1">
-            <Link href={`/videos/${data.id}`}>
+            <Link prefetch href={`/videos/${data.id}`}>
               <h3
                 className={cn(
                   'line-clamp-2 font-medium',
@@ -106,7 +106,7 @@ function VideoRowCard({ data, onRemove, size = 'default' }: videoRowCardProps) {
               )}
             </Link>
             {size === 'default' && (
-              <Link href={`/users/${data.user.id}`}>
+              <Link prefetch href={`/users/${data.user.id}`}>
                 <div className="my-3 flex items-center gap-2">
                   <UserAvatar size={'sm'} imageUrl={data.user.image} name={data.user.name} />
                   <UserInfo name={data.user.name} />
@@ -124,7 +124,7 @@ function VideoRowCard({ data, onRemove, size = 'default' }: videoRowCardProps) {
               </Link>
             )}
             {size === 'compact' && (
-              <Link href={`/users/${data.user.id}`}>
+              <Link prefetch href={`/users/${data.user.id}`}>
                 <UserInfo size={'sm'} name={data.user.name} />
                 <p className="text-muted-foreground mt-1 text-xs">
                   {/* data._count.VideoReaction is the likes count */}

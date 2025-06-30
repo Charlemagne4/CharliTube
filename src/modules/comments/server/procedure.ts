@@ -14,7 +14,11 @@ export const videoCommentsRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const { commentId } = input;
       const { id: userId } = ctx.user;
-      await prisma.videoComment.delete({ where: { id: commentId, userId } });
+
+      await prisma.$transaction([
+        prisma.videoComment.deleteMany({ where: { parentId: commentId } }),
+        prisma.videoComment.delete({ where: { id: commentId, userId } }),
+      ]);
       return { success: true };
     }),
   create: protectedProcedure.input(VideoCommentCreateSchema).mutation(async ({ input, ctx }) => {

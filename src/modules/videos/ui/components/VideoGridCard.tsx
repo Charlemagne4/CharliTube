@@ -20,7 +20,7 @@ export function VideoGridCardSkeleton() {
 function VideoGridCard({ data, onRemove }: videoGridCardProps) {
   return (
     <div className="group flex w-full flex-col gap-2">
-      <Link href={`/videos/${data.id}`}>
+      <Link prefetch href={`/videos/${data.id}`}>
         <VideoThumbnail imageUrl={data.thumbnailUrl} {...data} />
       </Link>
       <VideoInfo data={data} onRemove={onRemove} />

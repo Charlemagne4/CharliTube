@@ -56,6 +56,7 @@ function SubscribtionsSection() {
                   isActive={`/users/${subscription.creator.id}` === pathname}
                 >
                   <Link
+                    prefetch
                     href={`/users/${subscription.creator.id}`}
                     className="flex items-center gap-4"
                   >
@@ -72,7 +73,7 @@ function SubscribtionsSection() {
             {!isLoading && (
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={'/subscribtions' === pathname}>
-                  <Link href={'/subscribtions'} className="flex items-center gap-4">
+                  <Link prefetch href={'/subscribtions'} className="flex items-center gap-4">
                     <ListIcon className="size-4" />
                     <span>All Subscribtions</span>
                   </Link>

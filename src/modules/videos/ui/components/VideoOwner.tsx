@@ -32,7 +32,7 @@ function VideoOwnerSuspense({ user, videoId }: VideoOwnerProps) {
   return (
     <div className="flex min-w-0 items-center justify-between gap-3 sm:items-start sm:justify-start">
       {/* TODO: make the link Dynamic example /Fireship/id */}
-      <Link href={`/users/${user.id}`}>
+      <Link prefetch href={`/users/${user.id}`}>
         <div className="flex min-w-0 items-center justify-end gap-3">
           <UserAvatar size={'lg'} name={user.name} imageUrl={user.image} />
           <div className="flex min-w-0 flex-col">
@@ -46,7 +46,9 @@ function VideoOwnerSuspense({ user, videoId }: VideoOwnerProps) {
       </Link>
       {status === 'loading' ? null : session?.user.id === user.id ? (
         <Button className="rounded-full" asChild variant="secondary">
-          <Link href={`/studio/videos/${videoId}`}>Edit Video</Link>
+          <Link prefetch href={`/studio/videos/${videoId}`}>
+            Edit Video
+          </Link>
         </Button>
       ) : (
         <SubscriptionButton

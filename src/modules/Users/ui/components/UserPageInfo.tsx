@@ -66,7 +66,9 @@ function UserPageInfo({ user }: UserPageInfoProps) {
         </div>
         {session?.user.id === user.id ? (
           <Button variant={'secondary'} asChild className="mt-3 w-full rounded-full">
-            <Link href={'/studio'}>Go to studio</Link>
+            <Link prefetch href={'/studio'}>
+              Go to studio
+            </Link>
           </Button>
         ) : (
           <SubscriptionButton
@@ -98,7 +100,9 @@ function UserPageInfo({ user }: UserPageInfoProps) {
           </div>
           {session?.user.id === user.id ? (
             <Button variant={'secondary'} asChild className="mt-3 rounded-full">
-              <Link href={'/studio'}>Go to studio</Link>
+              <Link prefetch href={'/studio'}>
+                Go to studio
+              </Link>
             </Button>
           ) : (
             <SubscriptionButton

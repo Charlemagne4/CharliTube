@@ -6,7 +6,7 @@ import {
   SidebarGroup,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem
+  SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { LogOutIcon, VideoIcon } from 'lucide-react';
@@ -24,7 +24,7 @@ function StudioSidebar() {
             <StudioSidebarHeader />
             <SidebarMenuItem>
               <SidebarMenuButton isActive={pathname === '/studio'} tooltip={'Exit Studio'} asChild>
-                <Link href={'/studio'}>
+                <Link prefetch href={'/studio'}>
                   <VideoIcon className="size-5" />
                   <span className="text-sm">Content</span>
                 </Link>
@@ -33,7 +33,7 @@ function StudioSidebar() {
             <Separator />
             <SidebarMenuItem>
               <SidebarMenuButton tooltip={'Exit Studio'} asChild>
-                <Link href={'/'}>
+                <Link prefetch href={'/'}>
                   <LogOutIcon className="size-5" />
                   <span className="text-sm">Exit Studio</span>
                 </Link>

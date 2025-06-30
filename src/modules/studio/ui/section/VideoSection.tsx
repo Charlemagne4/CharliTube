@@ -113,7 +113,11 @@ function VideoSectionSuspense() {
               .map((video) => (
                 <TableRow key={video.id} className="hover:bg-gray-50">
                   <TableCell className="pl-6">
-                    <Link href={`/studio/videos/${video.id}`} className="flex items-center gap-4">
+                    <Link
+                      prefetch
+                      href={`/studio/videos/${video.id}`}
+                      className="flex items-center gap-4"
+                    >
                       <div className="relative aspect-video w-36 shrink-0">
                         <VideoThumbnail
                           previewUrl={video.previewUrl}
