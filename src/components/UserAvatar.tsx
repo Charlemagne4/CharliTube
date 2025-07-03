@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import { Avatar } from './ui/avatar';
 import { cva, type VariantProps } from 'class-variance-authority';
 import Image from 'next/image';
+import { USER_IMAGE_FALLBACK } from '@/constants';
 
 const nameFallback = 'Jean Michelle Bruitage';
 
@@ -29,7 +30,7 @@ function UserAvatar({ imageUrl, name, onClick, className, size }: UserAvatarProp
   return (
     <Avatar className={cn(avatarVariants({ size, className }))} onClick={onClick}>
       <Image
-        src={imageUrl || 'https://i.redd.it/jcilrifkq35a1.png'}
+        src={imageUrl || USER_IMAGE_FALLBACK}
         alt={name || nameFallback}
         width={200}
         height={200}

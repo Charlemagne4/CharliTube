@@ -56,6 +56,7 @@
     "@upstash/redis": "^1.34.9",
     "@upstash/workflow": "^0.2.13",
     "axios": "^1.10.0",
+    "bcrypt": "^6.0.0",
     "charli-tube": "file:",
     "class-variance-authority": "^0.7.1",
     "client-only": "^0.0.1",
@@ -90,6 +91,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

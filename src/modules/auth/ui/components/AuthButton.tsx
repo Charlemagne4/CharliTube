@@ -15,6 +15,7 @@ import Link from 'next/link';
 
 import { Suspense } from 'react';
 import { logger } from '@/utils/pino';
+import { THUMBNAIL_FALLBACK, USER_IMAGE_FALLBACK } from '@/constants';
 
 export function AuthButton() {
   return (
@@ -59,7 +60,7 @@ function SessionContent() {
             <p>{data.user?.name || 'User'}</p>
             <Image
               className="rounded-full object-contain"
-              src={data.user?.image || ''} // TODO:Use a default image if not available
+              src={data.user?.image || USER_IMAGE_FALLBACK} // TODO:Use a default image if not available
               alt="User image"
               width={40}
               height={40}

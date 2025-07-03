@@ -7,7 +7,6 @@ import { Form } from '@/components/ui/form';
 import MyForm from './MyForm';
 import { signInFormSchema as formSchema } from './Schema';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import { redirect, useRouter, useSearchParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
@@ -53,14 +52,17 @@ export function SignIn() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const res = await axios.post('/api/login', values, {
-        headers: { 'Content-Type': 'application/json' },
+      const res = await signIn('credentials', {
+        redirect: false,
+        email: values.email,
+        password: values.password,
       });
 
-      if (res.status === 200) {
-        router.push('/'); // ✅ redirect after login
+      if (res?.error) {
+        // router.push(res?.url || '/');
+        // router.refresh();
       } else {
-        setError(res.data.message || 'Something went wrong');
+        form.setError('root', { message: 'Invalid credentials' });
       }
     } catch (err) {
       logger.error(err);

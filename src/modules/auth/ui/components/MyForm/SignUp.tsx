@@ -6,15 +6,16 @@ import { z } from 'zod';
 import { Form } from '@/components/ui/form';
 import MyForm from './MyForm';
 import { signUpFormSchema as formSchema } from './Schema';
-import axios from 'axios';
 import { redirect, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { signIn, useSession } from 'next-auth/react';
-import { logger } from '@/utils/pino';
+import { trpc } from '@/trpc/client';
+import { toast } from 'sonner';
 
 export function SignUp() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const register = trpc.users.register.useMutation();
 
   if (session) {
     redirect('/');
@@ -31,27 +32,29 @@ export function SignUp() {
   });
 
   // 2. Define a submit handler.
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      const res = await axios('/api/register', {
-        method: 'POST',
-        data: values,
-        headers: {
-          'Content-Type': 'application/json',
+  async function onSubmit({ email, name, password }: z.infer<typeof formSchema>) {
+    register.mutate(
+      { email, password, username: name },
+      {
+        onSuccess: async () => {
+          const res = await signIn('credentials', {
+            email,
+            password,
+            redirect: false,
+          });
+
+          if (res?.ok) {
+            router.push('/');
+          } else {
+            console.error('Sign-in failed: ', res?.error);
+          }
         },
-      });
-      logger.info(values);
-
-      if (res.status === 200) {
-        router.push('/'); // ✅ redirect after login
-      }
-    } catch (error) {
-      if (error instanceof Error) logger.error(error.message);
-    }
-
-    // const error: string = await signUp(values);
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+        onError: (error) => {
+          toast.error(`Register failed: ${error.message}`);
+          form.setError('root', { message: error.message });
+        },
+      },
+    );
   }
   if (status === 'loading') {
     return (
