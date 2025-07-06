@@ -13,29 +13,30 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 
-import { Suspense } from 'react';
 import { logger } from '@/utils/pino';
 import { USER_IMAGE_FALLBACK } from '@/constants';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export function AuthButton() {
+function AuthButtonSkeleton() {
   return (
-    <Suspense fallback={<Button disabled>Loading...</Button>}>
-      <SessionContent />
-    </Suspense>
+    <div className="flex items-center justify-center gap-3">
+      <Skeleton className="hidden h-8 w-20 rounded-full md:block" />
+      <Skeleton className="size-10 rounded-full" />
+    </div>
   );
 }
 
-function SessionContent() {
+function AuthButton() {
   const { data, status } = useSession();
 
-  if (status === 'loading') return <div>loading...</div>;
+  if (status === 'loading') return <AuthButtonSkeleton />;
   //TODO: make the signin button redirect to initial Page
   if (status === 'unauthenticated') {
     return (
       <Link prefetch href={'/signin'}>
         <Button
           variant={'outline'}
-          className="rounded-full border-blue-500/20 px-4 py-2 text-sm font-medium text-blue-600 shadow-none hover:text-blue-500 [&_svg]:size-5"
+          className="flex items-center justify-center gap-3 rounded-full border-blue-500/20 text-sm font-medium text-blue-600 shadow-none hover:text-blue-500 [&_svg]:size-5"
         >
           <UserCircleIcon />
           Sign In
@@ -51,13 +52,13 @@ function SessionContent() {
     logger.debug('user email', data?.user.email);
     return (
       //add menu items for studio and User Profile
-      <DropdownMenu modal={false}>
+      <DropdownMenu>
         <DropdownMenuTrigger
-          className="text-md flex gap-3 overflow-hidden rounded-full border-none px-4 py-2 font-medium text-blue-800 shadow-none hover:text-blue-500 focus:outline-none"
+          className="text-md flex overflow-hidden rounded-full border-none font-medium text-blue-800 shadow-none hover:text-blue-500 focus:outline-none"
           // aria-haspopup="true"
         >
           <div className="flex items-center justify-center gap-3">
-            <p>{data.user?.name || 'User'}</p>
+            <p className="hidden md:block">{data.user?.name || 'User'}</p>
             <Image
               className="rounded-full object-contain"
               src={data.user?.image || USER_IMAGE_FALLBACK} // TODO:Use a default image if not available
