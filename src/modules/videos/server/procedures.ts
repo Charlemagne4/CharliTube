@@ -1,6 +1,6 @@
 import { createTRPCRouter, protectedProcedure, baseProcedure } from '@/trpc/init';
 import { prisma } from '../../../../prisma/prisma';
-import { mux } from '@/lib/mux';
+import { deleteMuxVideo, mux } from '@/lib/mux';
 import { VideoUpdateSchema } from '../../../../prisma/zod-prisma';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
@@ -273,13 +273,21 @@ export const videosRouter = createTRPCRouter({
       if (!removedVideo) {
         throw new TRPCError({ code: 'NOT_FOUND' });
       }
+      if (!removedVideo.muxAssetId) {
+        throw new TRPCError({ code: 'BAD_GATEWAY' });
+      }
 
       const utApi = new UTApi();
       const cleanUpAfterDeletion = [];
       if (removedVideo.previewKey) cleanUpAfterDeletion.push(removedVideo.previewKey);
       if (removedVideo.thumbnailKey) cleanUpAfterDeletion.push(removedVideo.thumbnailKey);
-      void utApi.deleteFiles(cleanUpAfterDeletion);
 
+      const deleteMux = deleteMuxVideo(removedVideo.muxAssetId);
+      const deleteUploadThing = utApi.deleteFiles(cleanUpAfterDeletion);
+
+      const [deletedUploadting, deletedMux] = await Promise.all([deleteUploadThing, deleteMux]);
+      logger.debug(deletedUploadting);
+      logger.debug(deletedMux);
       return removedVideo;
     }),
   revalidate: protectedProcedure
