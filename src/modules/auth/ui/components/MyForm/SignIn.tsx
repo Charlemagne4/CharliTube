@@ -7,7 +7,7 @@ import { Form } from '@/components/ui/form';
 import MyForm from './MyForm';
 import { signInFormSchema as formSchema } from './Schema';
 import { useEffect, useState } from 'react';
-import { redirect, useRouter, useSearchParams } from 'next/navigation';
+import { redirect,  useSearchParams } from 'next/navigation';
 import { signIn, useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { logger } from '@/utils/pino';
@@ -26,7 +26,7 @@ export function SignIn() {
     redirect('/');
   }
   const [error, setError] = useState<string>();
-  const router = useRouter();
+  const callbackUrl = decodeURIComponent(searchParams?.get('callbackUrl') ?? '/');
 
   const searchParamsInstance = useSearchParams();
   const authError = searchParamsInstance.get('error');
@@ -53,11 +53,10 @@ export function SignIn() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const res = await signIn('credentials', {
-        redirect: false,
         email: values.email,
         password: values.password,
+        callbackUrl: callbackUrl,
       });
-
       if (res?.error) {
         // router.push(res?.url || '/');
         // router.refresh();
@@ -82,7 +81,6 @@ export function SignIn() {
   }
 
   if (status === 'unauthenticated') {
-    const callbackUrl = decodeURIComponent(searchParams?.get('callbackUrl') ?? '/');
     return (
       <div className="">
         <div className="rounded">

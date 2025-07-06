@@ -15,7 +15,7 @@ import Link from 'next/link';
 
 import { Suspense } from 'react';
 import { logger } from '@/utils/pino';
-import { THUMBNAIL_FALLBACK, USER_IMAGE_FALLBACK } from '@/constants';
+import { USER_IMAGE_FALLBACK } from '@/constants';
 
 export function AuthButton() {
   return (

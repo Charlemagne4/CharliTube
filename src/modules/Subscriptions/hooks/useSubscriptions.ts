@@ -1,6 +1,6 @@
+import useRedirectToSignIn from '@/modules/auth/ui/components/useRedirectToSignIn';
 import { trpc } from '@/trpc/client';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 interface useSubscriptionsProps {
@@ -10,7 +10,7 @@ interface useSubscriptionsProps {
 }
 
 function useSubscriptions({ userId, fromVideoId }: useSubscriptionsProps) {
-  const router = useRouter();
+  const redirectToSignIn = useRedirectToSignIn();
 
   const { data: session, status } = useSession();
 
@@ -36,7 +36,7 @@ function useSubscriptions({ userId, fromVideoId }: useSubscriptionsProps) {
     onError: (error) => {
       toast.error('something Went Wrong');
       if (error.data?.code === 'UNAUTHORIZED') {
-        router.push('/signin');
+        redirectToSignIn();
       }
     },
   });
@@ -57,7 +57,7 @@ function useSubscriptions({ userId, fromVideoId }: useSubscriptionsProps) {
     onError: (error) => {
       toast.error('something Went Wrong');
       if (error.data?.code === 'UNAUTHORIZED') {
-        router.push('/signin');
+        redirectToSignIn();
       }
     },
   });

@@ -21,11 +21,11 @@ import {
   Trash2Icon,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import CommentForm from './CommentForm';
 import CommentReplies from './CommentReplies';
+import useRedirectToSignIn from '@/modules/auth/ui/components/useRedirectToSignIn';
 
 interface CommentItemProps {
   comment: CommentGetManyOutput['items'][number];
@@ -34,7 +34,7 @@ interface CommentItemProps {
 
 function CommentItem({ comment, variant = 'comment' }: CommentItemProps) {
   const { data: session } = useSession();
-  const router = useRouter();
+  const redirectToSignIn = useRedirectToSignIn();
 
   const [isReplyOpen, setIsReplyOpen] = useState(false);
   const [isRepliesOpen, setIsRepliesOpen] = useState(false);
@@ -48,7 +48,7 @@ function CommentItem({ comment, variant = 'comment' }: CommentItemProps) {
     onError: (error) => {
       toast.error('Something went wrong.');
       if (error.data?.code === 'UNAUTHORIZED') {
-        router.push('/signin');
+        redirectToSignIn();
       }
     },
   });
@@ -59,7 +59,7 @@ function CommentItem({ comment, variant = 'comment' }: CommentItemProps) {
     },
     onError: (error) => {
       toast.error('something went wrong');
-      if (error.data?.code === 'UNAUTHORIZED') router.push('/signin');
+      if (error.data?.code === 'UNAUTHORIZED') redirectToSignIn();
     },
   });
   const dislike = trpc.commentReactions.dislike.useMutation({
@@ -69,7 +69,7 @@ function CommentItem({ comment, variant = 'comment' }: CommentItemProps) {
     },
     onError: (error) => {
       toast.error('something went wrong');
-      if (error.data?.code === 'UNAUTHORIZED') router.push('/signin');
+      if (error.data?.code === 'UNAUTHORIZED') redirectToSignIn();
     },
   });
 

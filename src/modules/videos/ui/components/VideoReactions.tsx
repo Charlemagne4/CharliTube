@@ -4,10 +4,10 @@ import { cn } from '@/lib/utils';
 import { ThumbsDownIcon, ThumbsUpIcon } from 'lucide-react';
 import { $Enums } from '../../../../../generated/prisma';
 import { trpc } from '@/trpc/client';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import useRedirectToSignIn from '@/modules/auth/ui/components/useRedirectToSignIn';
 
 interface VideoReactionsProps {
   dislikes: number;
@@ -41,7 +41,7 @@ function VideoReactions({ dislikes, likes, videoId, viewerReaction }: VideoReact
 export default VideoReactions;
 
 function VideoReactionsSuspense({ dislikes, likes, videoId, viewerReaction }: VideoReactionsProps) {
-  const router = useRouter();
+  const redirectToSignIn = useRedirectToSignIn();
   const utils = trpc.useUtils();
 
   const like = trpc.reactions.like.useMutation({
@@ -52,7 +52,7 @@ function VideoReactionsSuspense({ dislikes, likes, videoId, viewerReaction }: Vi
     },
     onError: (error) => {
       if (error.data?.code === 'UNAUTHORIZED') {
-        router.push('/signin');
+        redirectToSignIn();
         toast.error('Login to react');
       }
     },
@@ -65,7 +65,7 @@ function VideoReactionsSuspense({ dislikes, likes, videoId, viewerReaction }: Vi
     },
     onError: (error) => {
       if (error.data?.code === 'UNAUTHORIZED') {
-        router.push('/signin');
+        redirectToSignIn();
         toast.error('Something went wrong');
       }
     },

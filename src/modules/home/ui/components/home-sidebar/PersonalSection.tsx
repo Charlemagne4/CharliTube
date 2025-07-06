@@ -8,10 +8,11 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import useRedirectToSignIn from '@/modules/auth/ui/components/useRedirectToSignIn';
 import { HistoryIcon, ListVideoIcon, ThumbsUpIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
 const items = [
   {
@@ -35,7 +36,7 @@ const items = [
 ];
 
 function PersonalSection() {
-  const router = useRouter();
+  const redirectToSignIn = useRedirectToSignIn();
   const { status } = useSession();
 
   const pathname = usePathname();
@@ -54,7 +55,7 @@ function PersonalSection() {
                 onClick={(e) => {
                   if (status !== 'authenticated' && item.auth) {
                     e.preventDefault();
-                    return router.push('/signin');
+                    return redirectToSignIn();
                   }
                 }}
               >

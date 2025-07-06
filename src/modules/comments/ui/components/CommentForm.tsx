@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { VideoCommentCreateSchema } from '../../../../../prisma/zod-prisma';
 import { trpc } from '@/trpc/client';
-import { useRouter } from 'next/navigation';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import useRedirectToSignIn from '@/modules/auth/ui/components/useRedirectToSignIn';
 
 interface CommentFormProps {
   videoId: string;
@@ -27,7 +27,7 @@ function CommentForm({
 }: CommentFormProps) {
   const { data: session, status } = useSession();
   const utils = trpc.useUtils();
-  const router = useRouter();
+  const redirectToSignIn = useRedirectToSignIn();
   const createComment = trpc.comments.create.useMutation({
     onSuccess: () => {
       utils.comments.getMany.invalidate({ videoId });
@@ -38,7 +38,7 @@ function CommentForm({
     onError: (error) => {
       toast.error('something went wrong.');
       if (error.data?.code === 'UNAUTHORIZED') {
-        router.push('/signin');
+        redirectToSignIn();
       }
     },
   });
