@@ -112,19 +112,17 @@ export async function POST(request: Request) {
           const tempThumbnailUrl = `https://image.mux.com/${playbackId}/thumbnail.jpg`;
           const uploadedThumbnail = await utApi.uploadFilesFromUrl(tempThumbnailUrl);
           thumbnailKey = uploadedThumbnail?.data?.key;
-          thumbnailUrl = tempThumbnailUrl;
-          //TODO: uploadthing not working properly for now (it works now revert later)
-          // thumbnailUrl = uploadedThumbnail?.data?.ufsUrl;
-          logger.info('readying Video', tempThumbnailUrl);
+          thumbnailUrl = uploadedThumbnail?.data?.ufsUrl;
+
+          console.log('readying Video', tempThumbnailUrl);
         }
         if (!previewUrl) {
           const tempPreviewUrl = `https://image.mux.com/${playbackId}/animated.gif`;
           const uploadedPreview = await utApi.uploadFilesFromUrl(tempPreviewUrl);
           previewKey = uploadedPreview?.data?.key;
-          previewUrl = tempPreviewUrl;
-          //TODO: uploadthing not working properly for now (it works now revert later)
-          // previewUrl = uploadedPreview?.data?.ufsUrl;
-          logger.info('readying Video', previewUrl);
+          previewUrl = uploadedPreview?.data?.ufsUrl;
+
+          console.log('readying Video', previewUrl);
         }
 
         const duration = data.duration ? Math.round(data.duration * 1000) : 0;
@@ -155,7 +153,6 @@ export async function POST(request: Request) {
       }
       break;
     }
-
     case 'video.asset.errored': {
       const data = payLoad.data as VideoAssetErroredWebhookEvent['data'];
 
