@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { logger } from '@/utils/pino';
 import { USER_IMAGE_FALLBACK } from '@/constants';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DarkModeToggler } from '@/components/DarkModeToggler';
 
 function AuthButtonSkeleton() {
   return (
@@ -52,7 +53,7 @@ function AuthButton() {
     logger.debug('user email', data?.user.email);
     return (
       //add menu items for studio and User Profile
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger
           className="text-md flex overflow-hidden rounded-full border-none font-medium text-blue-800 shadow-none hover:text-blue-500 focus:outline-none"
           // aria-haspopup="true"
@@ -68,7 +69,7 @@ function AuthButton() {
             />
           </div>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="">
+        <DropdownMenuContent align="start" className="">
           <DropdownMenuItem variant="default">
             <Link
               prefetch
@@ -85,6 +86,7 @@ function AuthButton() {
               Studio
             </Link>
           </DropdownMenuItem>
+          <DarkModeToggler />
           <DropdownMenuItem
             variant="destructive"
             className="flex items-center gap-3 text-lg"
