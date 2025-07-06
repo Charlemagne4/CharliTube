@@ -81,7 +81,12 @@ function VideoReactionsSuspense({ dislikes, likes, videoId, viewerReaction }: Vi
         className="gap-2 rounded-l-full rounded-r-none pr-4"
         variant={'secondary'}
       >
-        <ThumbsUpIcon className={cn('size-5', viewerReaction === 'like' && 'fill-black')} />
+        <ThumbsUpIcon
+          className={cn(
+            'text-foreground size-5',
+            viewerReaction === 'like' && 'fill-chart-2 text-chart-2',
+          )}
+        />
         {likes}
       </Button>
       <Separator orientation="vertical" className="h-7" />
@@ -93,7 +98,12 @@ function VideoReactionsSuspense({ dislikes, likes, videoId, viewerReaction }: Vi
         className="rounded-l-none rounded-r-full pl-3"
         variant={'secondary'}
       >
-        <ThumbsDownIcon className={cn('size-5', viewerReaction === 'dislike' && 'fill-black')} />
+        <ThumbsDownIcon
+          className={cn(
+            'text-foreground size-5',
+            viewerReaction === 'dislike' && 'fill-destructive text-destructive',
+          )}
+        />
         {dislikes}
       </Button>
     </div>
