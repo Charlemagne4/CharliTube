@@ -37,7 +37,6 @@ function VideoOwnerSuspense({ user, videoId }: VideoOwnerProps) {
           <UserAvatar size={'lg'} name={user.name} imageUrl={user.image} />
           <div className="flex min-w-0 flex-col">
             <UserInfo name={user.name} size={'lg'} />
-            {/* TODO: properly implement Subscribers data */}
             <span className="text-muted-foreground line-clamp-1 text-sm">
               {user._count.Subscribers} Subscribers
             </span>
