@@ -6,16 +6,18 @@ import { z } from 'zod';
 import { Form } from '@/components/ui/form';
 import MyForm from './MyForm';
 import { signUpFormSchema as formSchema } from './Schema';
-import { redirect, useRouter } from 'next/navigation';
+import { redirect, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { signIn, useSession } from 'next-auth/react';
 import { trpc } from '@/trpc/client';
 import { toast } from 'sonner';
 
 export function SignUp() {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const register = trpc.users.register.useMutation();
+
+  const searchParams = useSearchParams();
+  const callbackUrl = decodeURIComponent(searchParams?.get('callbackUrl') ?? '/');
 
   if (session) {
     redirect('/');
@@ -25,7 +27,7 @@ export function SignUp() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '', // Ensure 'n
+      name: '',
       email: '',
       password: '',
     },
@@ -40,12 +42,10 @@ export function SignUp() {
           const res = await signIn('credentials', {
             email,
             password,
-            redirect: false,
+            callbackUrl: callbackUrl,
           });
 
-          if (res?.ok) {
-            router.push('/');
-          } else {
+          if (!res?.ok) {
             console.error('Sign-in failed: ', res?.error);
           }
         },
@@ -73,10 +73,10 @@ export function SignUp() {
       <div className="rounded">
         <Form {...form}>
           <div className="mb-4 flex gap-20">
-            <Button onClick={() => signIn('github', { callbackUrl: '/' })}>
+            <Button onClick={() => signIn('github', { callbackUrl: callbackUrl })}>
               Sign in with GitHub
             </Button>
-            <Button onClick={() => signIn('discord', { callbackUrl: '/' })}>
+            <Button onClick={() => signIn('discord', { callbackUrl: callbackUrl })}>
               Sign in with Discord
             </Button>
           </div>
