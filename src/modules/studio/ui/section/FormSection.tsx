@@ -320,7 +320,7 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
                   <FormItem>
                     <FormLabel>Thumbnail</FormLabel>
                     <FormControl>
-                      <div className="group relative h-[84px] w-[153px] border border-dashed border-neutral-400 p-0.5">
+                      <div className="group border-foreground/50 relative h-[84px] w-[153px] border border-dashed p-0.5">
                         <Image
                           fill
                           alt="thumbnail"
@@ -388,7 +388,7 @@ function FormSectionSuspense({ videoId }: FormSectionProps) {
             </div>
             {/* 2nd column */}
             <div className="flex flex-col gap-y-8 lg:col-span-2">
-              <div className="flex h-fit flex-col gap-4 overflow-hidden rounded-xl bg-[#f9f9f9]">
+              <div className="bg-card flex h-fit flex-col gap-4 overflow-hidden rounded-xl">
                 <div className="relative aspect-video overflow-hidden">
                   <VideoPlayer playbackId={video.muxPlaybackId} thumbnailUrl={video.thumbnailUrl} />
                 </div>

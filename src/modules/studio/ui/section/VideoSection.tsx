@@ -102,16 +102,16 @@ function VideoSectionSuspense() {
               <TableHead>Visibility</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Date</TableHead>
-              <TableHead className="text-right">Views</TableHead>
-              <TableHead className="text-right">Comments</TableHead>
-              <TableHead className="pr-6 text-right">Likes</TableHead>
+              <TableHead className="text-left">Views</TableHead>
+              <TableHead className="text-left">Comments</TableHead>
+              <TableHead className="pr-6 text-left">Likes</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {videos.pages
               .flatMap((page) => page.items)
               .map((video) => (
-                <TableRow key={video.id} className="hover:bg-gray-50">
+                <TableRow key={video.id} className="hover:bg-card">
                   <TableCell className="pl-6">
                     <Link
                       prefetch
@@ -126,9 +126,9 @@ function VideoSectionSuspense() {
                           duration={video.duration}
                         />
                       </div>
-                      <div className="flex max-w-md flex-col gap-y-1 overflow-hidden">
+                      <div className="flex max-w-xs flex-col gap-y-1 overflow-hidden">
                         <span className="line-clamp-1 text-sm">{video.title}</span>
-                        <span className="text-muted-foreground line-clamp-1 text-xs">
+                        <span className="text-muted-foreground line-clamp-0 text-xs">
                           {video.description || 'no description'}
                         </span>
                       </div>
@@ -147,10 +147,12 @@ function VideoSectionSuspense() {
                   <TableCell className="truncate text-sm">
                     <div className="flex items-center">{snakeCaseToTitle(video.muxStatus)}</div>
                   </TableCell>
-                  <TableCell>{format(new Date(video.createdAt), 'dd MMM yyyy')}</TableCell>
-                  <TableCell className="text-right text-sm">{video._count.VideoViews}</TableCell>
-                  <TableCell className="text-right text-sm">{video._count.VideoComment}</TableCell>
-                  <TableCell className="pr-6 text-right text-sm">
+                  <TableCell className="text-left text-sm">
+                    {format(new Date(video.createdAt), 'dd MMM yyyy')}
+                  </TableCell>
+                  <TableCell className="text-left text-sm">{video._count.VideoViews}</TableCell>
+                  <TableCell className="text-left text-sm">{video._count.VideoComment}</TableCell>
+                  <TableCell className="pr-6 text-left text-sm">
                     {video._count.VideoReaction}
                   </TableCell>
                 </TableRow>
