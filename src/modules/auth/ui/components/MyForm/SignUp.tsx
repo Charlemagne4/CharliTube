@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { signIn, useSession } from 'next-auth/react';
 import { trpc } from '@/trpc/client';
 import { toast } from 'sonner';
+import { Suspense } from 'react';
 
 export function SignUp() {
   const { data: session, status } = useSession();
@@ -68,23 +69,25 @@ export function SignUp() {
   }
 
   return (
-    <div className="">
-      <h1>Sign Up</h1>
-      <div className="rounded">
-        <Form {...form}>
-          <div className="mb-4 flex gap-20">
-            <Button onClick={() => signIn('github', { callbackUrl: callbackUrl })}>
-              Sign in with GitHub
-            </Button>
-            <Button onClick={() => signIn('discord', { callbackUrl: callbackUrl })}>
-              Sign in with Discord
-            </Button>
-          </div>
+    <Suspense>
+      <div className="">
+        <h1>Sign Up</h1>
+        <div className="rounded">
+          <Form {...form}>
+            <div className="mb-4 flex gap-20">
+              <Button onClick={() => signIn('github', { callbackUrl: callbackUrl })}>
+                Sign in with GitHub
+              </Button>
+              <Button onClick={() => signIn('discord', { callbackUrl: callbackUrl })}>
+                Sign in with Discord
+              </Button>
+            </div>
 
-          <MyForm form={form} onSubmit={onSubmit} />
-        </Form>
+            <MyForm form={form} onSubmit={onSubmit} />
+          </Form>
+        </div>
       </div>
-    </div>
+    </Suspense>
   );
 }
 
